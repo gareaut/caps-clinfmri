@@ -11,7 +11,7 @@
     </docstring>
     <processes>
         <standard name="model">
-            <module>caps.nsap.functional_statistic.spm_model_specification.spm_model_specification</module>
+            <module>clinfmri.statistics.spm_model_specification.spm_model_specification</module>
             <force name="concatenate_runs" value="True"/>
             <force name="delimiter" value="\t"/>
             <force name="start" value="0"/>
@@ -33,7 +33,7 @@
             <force name="timing_units" value="secs" usedefault="True"/>
         </standard>
         <standard name="snap" processing="False">
-            <module>caps.nsap.functional_statistic.spm_utils.spm_save_design</module>
+            <module>clinfmri.statistics.spm_utils.spm_save_design</module>
             <force name="output_directory" value="Undefined"/>
         </standard>
         <standard name="estimate">
@@ -49,7 +49,7 @@
             <force name="residual_image" copyfile="Temp"/>
         </standard>
         <standard name="encoding">
-            <module>caps.nsap.functional_statistic.spm_utils.spm_image_nii_encoding</module>
+            <module>clinfmri.statistics.spm_utils.spm_image_nii_encoding</module>
             <force name="output_directory" value="Undefined"/>
         </standard>
     </processes>
