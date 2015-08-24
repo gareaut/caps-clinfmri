@@ -1,0 +1,93 @@
+<pipeline>
+    <docstring>
+        FSL or SPM slice timing.
+    </docstring>
+    <processes>
+        <standard name="image_manager">
+            <module>pclinfmri.preproc.slice_timing.time_serie_metadata</module>
+            <force name="force_repetition_time" value="-1"/>
+            <force name="force_slice_orders" value="[]"/>
+        </standard>
+        <standard name="spm_input_adapter">
+            <module>pclinfmri.adapters.io.element_to_list</module>
+        </standard>
+        <standard name="spm_output_adapter">
+            <module>pclinfmri.adapters.io.list_to_element</module>
+        </standard>
+        <standard name="ungzip_adapter">
+            <module>pclinfmri.adapters.io.ungzip_file</module>
+            <force name="prefix" value="u"/>
+            <force name="output_directory" value="Undefined"/>
+        </standard>
+        <standard name="fsl_save_timings">
+            <module>pclinfmri.preproc.slice_timing.fsl_save_custom_timings</module>
+            <force name="output_directory" value="Undefined"/>
+        </standard>
+        <standard name="spm_slice_timing">
+            <module>nipype.interfaces.spm.SliceTiming</module>
+            <force name="in_files" copyfile="Temp"/>
+            <force name="ref_slice" value="1"/>
+            <force name="out_prefix" value="a"/>
+            <force name="output_directory" value="Undefined"/>
+        </standard>
+        <standard name="fsl_slice_timing">
+            <module>nipype.interfaces.fsl.SliceTimer</module>
+            <!-- <force name="output_type" value="NIFTI_GZ"/> -->
+            <force name="slice_direction" value="3"/>
+            <force name="terminal_output" value="stream"/>
+            <force name="output_directory" value="Undefined"/>
+        </standard>
+        <switch name="select_slicer">
+            <input>fsl</input>
+            <input>spm</input>
+            <input>none</input>
+            <output>time_corrected_fmri_file</output>
+        </switch>
+    </processes>
+    <links>
+        <!-- ADAPTERS -->
+        <link src="image_manager.slice_orders" dest="fsl_save_timings.slice_orders"/>
+        <link src="fmri_file" dest="ungzip_adapter.fname"/>
+        <link src="ungzip_adapter.ungzipfname" dest="spm_input_adapter.element"/>
+        <link src="spm_slice_timing._timecorrected_files" dest="spm_output_adapter.listobj"/>
+        <!-- SPM -->
+        <link src="spm_input_adapter.adaptedelement" dest="spm_slice_timing.in_files"/>
+        <link src="image_manager.number_of_slices" dest="spm_slice_timing.num_slices"/>
+        <link src="image_manager.repetition_time" dest="spm_slice_timing.time_repetition"/>
+        <link src="image_manager.acquisition_time" dest="spm_slice_timing.time_acquisition"/>
+        <link src="image_manager.slice_orders" dest="spm_slice_timing.slice_order"/>
+        <!-- FSL -->
+        <link src="fmri_file" dest="fsl_slice_timing.in_file"/>
+        <link src="image_manager.repetition_time" dest="fsl_slice_timing.time_repetition"/>
+        <link src="fsl_save_timings.timings_file" dest="fsl_slice_timing.custom_timings"/>
+        <!-- SWITCH -->
+        <link src="fmri_file" dest="select_slicer.none_switch_time_corrected_fmri_file"/>
+        <link src="spm_output_adapter.element" dest="select_slicer.spm_switch_time_corrected_fmri_file"/>
+        <link src="fsl_slice_timing._slice_time_corrected_file" dest="select_slicer.fsl_switch_time_corrected_fmri_file"/>
+    </links>
+    <inputs>
+        <input name="fmri_file" dest="image_manager.fmri_file"/>
+        <input name="force_slice_orders" dest="image_manager.force_slice_orders"/>
+        <input name="force_repetition_time" dest="image_manager.force_repetition_time"/>
+    </inputs>
+    <outputs>
+        <output name="time_corrected_fmri_file" src="select_slicer.time_corrected_fmri_file"/>
+        <output name="slice_orders" src="image_manager.slice_orders"/>
+        <output name="number_of_slices" src="image_manager.number_of_slices"/>
+        <output name="repetition_time" src="image_manager.repetition_time"/>
+        <output name="acquisition_time" src="image_manager.acquisition_time"/>
+    </outputs>
+    <positions>
+        <position process="inputs" x="-573" y="209"/>
+        <position process="image_manager" x="-165" y="67"/>
+        <position process="spm_input_adapter" x="2" y="-82"/>
+        <position process="spm_output_adapter" x="434" y="242"/>
+        <position process="fsl_save_timings" x="-52" y="421"/>
+        <position process="ungzip_adapter" x="-185" y="-156"/>
+        <position process="spm_slice_timing" x="215" y="-107"/>
+        <position process="fsl_slice_timing" x="208" y="395"/>
+        <position process="select_slicer" x="596" y="367"/>
+        <position process="outputs" x="683" y="623"/>
+    </positions>
+    <scale factor="0.3"/> 
+</pipeline>

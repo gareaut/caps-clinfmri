@@ -1,0 +1,63 @@
+<pipeline>
+    <docstring>
+        Register the structural and functional volumes to a template space.
+    </docstring>
+    <processes>
+        <standard name="tpm_registration">
+            <module>pclinfmri.preproc.spm_tpm_registration.xml</module>
+        </standard>
+        <standard name="template_registration">
+            <module>pclinfmri.preproc.spm_template_registration.xml</module>
+        </standard>
+        <standard name="overlay" processing="False">
+            <module>pclinfmri.quality_control.spm_overlay.xml</module>
+        </standard>
+        <switch name="select_registration">
+            <input>tpm</input>
+            <input>template</input>
+            <output>normalization_parameters</output>
+            <output>normalized_struct_file</output>
+            <output>normalized_fmri_file</output>
+        </switch>
+    </processes>
+    <links>
+        <!-- SWITCH -->
+        <link src="tpm_registration.normalization_parameters" dest="select_registration.tpm_switch_normalization_parameters"/>
+        <link src="tpm_registration.normalized_struct_file" dest="select_registration.tpm_switch_normalized_struct_file"/>
+        <link src="tpm_registration.normalized_fmri_file" dest="select_registration.tpm_switch_normalized_fmri_file"/>
+        <link src="template_registration.normalization_parameters" dest="select_registration.template_switch_normalization_parameters"/>
+        <link src="template_registration.normalized_struct_file" dest="select_registration.template_switch_normalized_struct_file"/>
+        <link src="template_registration.normalized_fmri_file" dest="select_registration.template_switch_normalized_fmri_file"/>
+        <!-- PIPELINE -->
+        <link src="fmri_file" dest="tpm_registration.fmri_file"/>
+        <link src="coregistered_struct_file" dest="tpm_registration.coregistered_struct_file"/>
+        <link src="struct_voxel_sizes" dest="tpm_registration.struct_voxel_sizes"/>
+        <link src="func_voxel_sizes" dest="tpm_registration.func_voxel_sizes"/>
+        <!-- QC -->
+        <link src="template_file" dest="overlay.template_file"/>
+        <link src="select_registration.normalized_struct_file" dest="overlay.input_file"/>
+        <link src="struct_voxel_sizes" dest="overlay.voxel_sizes"/>
+    </links>
+    <inputs>
+        <input name="fmri_file" dest="template_registration.fmri_file"/>
+        <input name="coregistered_struct_file" dest="template_registration.coregistered_struct_file"/>
+        <input name="template_file" dest="template_registration.template_file"/>
+        <input name="struct_voxel_sizes" dest="template_registration.struct_voxel_sizes"/>
+        <input name="func_voxel_sizes" dest="template_registration.func_voxel_sizes"/>
+    </inputs>
+    <outputs>
+        <output name="normalization_parameters" src="select_registration.normalization_parameters"/>
+        <output name="normalized_struct_file" src="select_registration.normalized_struct_file"/>
+        <output name="normalized_fmri_file" src="select_registration.normalized_fmri_file"/>
+        <output name="qc_edges_file" src="overlay.edges_file"/>
+    </outputs>
+    <positions>
+        <position process="inputs" x="-435" y="8"/>
+        <position process="tpm_registration" x="-202" y="-273"/>
+        <position process="template_registration" x="-209" y="264"/>
+        <position process="select_registration" x="27" y="-26"/>
+        <position process="overlay" x="245" y="334"/>
+        <position process="outputs" x="449" y="333"/>
+    </positions>
+    <scale factor="0.5"/> 
+</pipeline>

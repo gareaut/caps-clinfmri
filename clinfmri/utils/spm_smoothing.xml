@@ -1,0 +1,50 @@
+<pipeline>
+    <docstring>
+        SPM Smoothing.
+    </docstring>
+    <processes>
+        <standard name="spm_input_adapter">
+            <module>pclinfmri.adapters.io.element_to_list</module>
+        </standard>
+        <standard name="spm_output_adapter">
+            <module>pclinfmri.adapters.io.list_to_element</module>
+        </standard>
+        <standard name="ungzip_adapter">
+            <module>pclinfmri.adapters.io.ungzip_file</module>
+            <force name="prefix" value="u"/>
+            <force name="output_directory" value="Undefined"/>
+        </standard>
+        <standard name="spm_smoothing">
+            <module>nipype.interfaces.spm.Smooth</module>
+            <force name="in_files" copyfile="Temp"/>
+            <force name="fwhm" value="[5, 5, 5]"/>
+            <force name="data_type" value="0"/>
+            <force name="implicit_masking" value="False"/>
+            <force name="out_prefix" value="s"/>
+            <force name="output_directory" value="Undefined"/>
+        </standard>
+    </processes>
+    <links>
+        <!-- ADAPTERS -->
+        <link src="ungzip_adapter.ungzipfname" dest="spm_input_adapter.element"/>
+        <link src="spm_smoothing._smoothed_files" dest="spm_output_adapter.listobj"/>
+        <!-- SPM -->
+        <link src="spm_input_adapter.adaptedelement" dest="spm_smoothing.in_files"/>
+    </links>
+    <inputs>
+        <input name="image_file" dest="ungzip_adapter.fname"/>
+        <input name="fwhm" dest="spm_smoothing.fwhm"/>
+    </inputs>
+    <outputs>
+        <output name="smoothed_image_file" src="spm_output_adapter.element"/>
+    </outputs>
+    <positions>
+        <position process="inputs" x="-514" y="251"/>
+        <position process="spm_input_adapter" x="-184" y="276"/>
+        <position process="spm_output_adapter" x="211" y="476"/>
+        <position process="ungzip_adapter" x="-361" y="201"/>
+        <position process="spm_smoothing" x="16" y="176"/>
+        <position process="outputs" x="396" y="500"/>
+    </positions>
+    <scale factor="0.5"/> 
+</pipeline>
