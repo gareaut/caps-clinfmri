@@ -20,10 +20,9 @@ logging.basicConfig(level=logging.INFO)
 # CAPSUL import
 from capsul.qt_gui.widgets import PipelineDevelopperView
 from capsul.study_config.study_config import StudyConfig
+from capsul.process.loader import get_process_instance
 
 # CAPS import
-from caps.nsap.functional_statistic.pipeline import SpmFirstLevelPipeline
-from capsul.process.loader import get_process_instance
 from caps.toy_datasets import get_sample_data
 
 

@@ -8,8 +8,18 @@
               of elements.
             * `onsets` and `durations` values must have the same units as the
               TR used in the processings (ie. seconds).
+            force name="mask_threshold" value="-Inf"
     </docstring>
     <processes>
+        <standard name="smoother">
+            <module>nipype.interfaces.spm.Smooth</module>
+            <force name="in_files" copyfile="Temp"/>
+            <force name="fwhm" value="[5, 5, 5]"/>
+            <force name="data_type" value="0"/>
+            <force name="implicit_masking" value="False"/>
+            <force name="out_prefix" value="s"/>
+            <force name="output_directory" value="Undefined"/>
+        </standard>
         <standard name="model">
             <module>clinfmri.statistics.spm_model_specification.spm_model_specification</module>
             <force name="concatenate_runs" value="True"/>
@@ -26,8 +36,8 @@
             <force name="global_intensity_normalization" value="none"/>
             <force name="model_serial_correlations" value="AR(1)"/>
             <force name="factor_info" value="[{'name': {}}, {'levels': {}}]"/>
-            <force name="bases" value="{'hrf': {'derivs': [1, 0]}}"/>
-            <force name="mask_threshold" value="-Inf"/>
+            <force name="bases" value="{'hrf': {'derivs': [0, 0]}}"/>
+            <force name="mask_image" value="/neurospin/imagen/workspace/fmri/scripts/mask_dilated.nii"/>
             <force name="use_v8struct" value="True"/>
             <force name="mfile" value="True"/>
             <force name="timing_units" value="secs" usedefault="True"/>
@@ -55,6 +65,7 @@
     </processes>
     <links>
         <link src="output_directory" dest="design.spm_mat_dir"/>
+        <link src="smoother._smoothed_files" dest="model.fmri_sessions"/>
         <link src="time_repetition" dest="design.interscan_interval"/>
         <link src="model.session_info" dest="design.session_info"/>
         <link src="design._spm_mat_file" dest="snap.spm_mat_file"/>
@@ -71,8 +82,8 @@
     </links>
     <inputs>
         <input name="output_directory" dest="design.output_directory"/>
+        <input name="fmri_sessions" dest="smoother.in_files"/>
         <input name="behavioral_data" dest="model.behavioral_data"/>
-        <input name="fmri_sessions" dest="model.fmri_sessions"/>
         <input name="onset_name" dest="model.onset_name"/>
         <input name="condition_name" dest="model.condition_name"/>
         <input name="time_repetition" dest="model.time_repetition"/>
@@ -81,6 +92,7 @@
         <input name="start" dest="model.start"/>
         <input name="concatenate_runs" dest="model.concatenate_runs"/>
         <input name="high_pass_filter_cutoff" dest="model.high_pass_filter_cutoff"/>
+        <input name="bases" dest="design.bases"/>
         <input name="contrasts" dest="contrast.contrasts"/>
     </inputs>
     <outputs>
