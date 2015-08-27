@@ -2,83 +2,81 @@
     <docstring>
         SPM structural and functional warping to a template.
     </docstring>
-    <processes>
-        <standard name="ungzip_funcadapter">
-            <module>pclinfmri.adapters.io.ungzip_file</module>
-            <force name="prefix" value="u"/>
-            <force name="output_directory" value="Undefined"/>
-        </standard>
-        <standard name="ungzip_structadapter">
-            <module>pclinfmri.adapters.io.ungzip_file</module>
-            <force name="prefix" value="u"/>
-            <force name="output_directory" value="Undefined"/>
-        </standard>
-        <standard name="spm_input_adapter_1">
-            <module>pclinfmri.adapters.io.element_to_list</module>
-        </standard>
-        <standard name="spm_output_adapter_1">
-            <module>pclinfmri.adapters.io.list_to_element</module>
-        </standard>
-        <standard name="ungzip_templateadapter">
-            <module>pclinfmri.adapters.io.ungzip_file</module>
-            <force name="prefix" value="u"/>
-            <force name="output_directory" value="Undefined"/>
-        </standard>       
-        <standard name="spm_normalize">
-            <module>pclinfmri.nipype_interfaces.spm.Normalize</module>
-            <force name="write_voxel_sizes" value="[1., 1., 1.]"/>
-            <force name="bounding_box" value="[[-78, -112, -50], [78, 76, 85]]"/>
-            <force name="write_interp" value="1"/>
-            <force name="jobtype" value="estwrite"/>
-            <force name="out_prefix" value="w"/>
-            <force name="output_directory" value="Undefined"/>
-            <force name="parameter_file" value="Undefined"/>
-        </standard>
-        <standard name="spm_funcnormalize">
-            <module>pclinfmri.nipype_interfaces.spm.Normalize</module>
-            <force name="write_voxel_sizes" value="[3., 3., 3.]"/>
-            <force name="bounding_box" value="[[-78, -112, -50], [78, 76, 85]]"/>
-            <force name="write_interp" value="1"/>
-            <force name="jobtype" value="write"/>
-            <force name="out_prefix" value="w"/>
-            <force name="output_directory" value="Undefined"/>
-            <force name="parameter_file" value="Undefined"/>
-            <force name="source" value="Undefined"/>
-            <force name="template" value="Undefined"/>
-        </standard>
-    </processes>
+    <units>
+        <unit name="ungzip_funcadapter">
+            <module>mmutils.adapters.io.ungzip_file</module>
+            <set name="prefix" value="'u'"/>
+            <set name="output_directory" value="Undefined"/>
+        </unit>
+        <unit name="ungzip_structadapter">
+            <module>mmutils.adapters.io.ungzip_file</module>
+            <set name="prefix" value="'u'"/>
+            <set name="output_directory" value="Undefined"/>
+        </unit>
+        <unit name="spm_input_adapter_1">
+            <module>mmutils.adapters.io.element_to_list</module>
+        </unit>
+        <unit name="spm_output_adapter_1">
+            <module>mmutils.adapters.io.list_to_element</module>
+        </unit>
+        <unit name="ungzip_templateadapter">
+            <module>mmutils.adapters.io.ungzip_file</module>
+            <set name="prefix" value="'u'"/>
+            <set name="output_directory" value="Undefined"/>
+        </unit>       
+        <unit name="spm_normalize">
+            <module>clinfmri.nipype_interfaces.spm.Normalize</module>
+            <set name="write_voxel_sizes" value="[1., 1., 1.]"/>
+            <set name="bounding_box" value="[[-78, -112, -50], [78, 76, 85]]"/>
+            <set name="write_interp" value="1"/>
+            <set name="jobtype" value="'estwrite'"/>
+            <set name="out_prefix" value="'w'"/>
+            <set name="output_directory" value="Undefined"/>
+            <set name="parameter_file" value="Undefined"/>
+        </unit>
+        <unit name="spm_funcnormalize">
+            <module>clinfmri.nipype_interfaces.spm.Normalize</module>
+            <set name="write_voxel_sizes" value="[3., 3., 3.]"/>
+            <set name="bounding_box" value="[[-78, -112, -50], [78, 76, 85]]"/>
+            <set name="write_interp" value="1"/>
+            <set name="jobtype" value="'write'"/>
+            <set name="out_prefix" value="'w'"/>
+            <set name="output_directory" value="Undefined"/>
+            <set name="parameter_file" value="Undefined"/>
+            <set name="source" value="Undefined"/>
+            <set name="template" value="Undefined"/>
+        </unit>
+    </units>
     <links>
         <!-- ADAPTERS -->
-        <link src="ungzip_funcadapter.ungzipfname" dest="spm_input_adapter_1.element"/>
-        <link src="spm_funcnormalize._normalized_files" dest="spm_output_adapter_1.listobj"/>
+        <link source="ungzip_funcadapter.ungzipfname" destination="spm_input_adapter_1.element"/>
+        <link source="spm_funcnormalize._normalized_files" destination="spm_output_adapter_1.listobj"/>
         <!-- SPM -->
-        <link src="ungzip_templateadapter.ungzipfname" dest="spm_normalize.template"/>
-        <link src="ungzip_structadapter.ungzipfname" dest="spm_normalize.source"/>
-        <link src="spm_input_adapter_1.adaptedelement" dest="spm_funcnormalize.apply_to_files"/>
-        <link src="spm_normalize._normalization_parameters" dest="spm_funcnormalize.parameter_file"/>
+        <link source="ungzip_templateadapter.ungzipfname" destination="spm_normalize.template"/>
+        <link source="ungzip_structadapter.ungzipfname" destination="spm_normalize.source"/>
+        <link source="spm_input_adapter_1.adaptedelement" destination="spm_funcnormalize.apply_to_files"/>
+        <link source="spm_normalize._normalization_parameters" destination="spm_funcnormalize.parameter_file"/>
+        <!-- INPUTS -->
+        <link source="fmri_file" destination="ungzip_funcadapter.fname"/>
+        <link source="coregistered_struct_file" destination="ungzip_structadapter.fname"/>
+        <link source="template_file" destination="ungzip_templateadapter.fname"/>
+        <link source="struct_voxel_sizes" destination="spm_normalize.write_voxel_sizes"/>
+        <link source="func_voxel_sizes" destination="spm_funcnormalize.write_voxel_sizes"/>
+        <!-- OUTPUTS -->
+        <link source="spm_normalize._normalization_parameters" destination="normalization_parameters"/>
+        <link source="spm_normalize._normalized_source" destination="normalized_struct_file"/>
+        <link source="spm_output_adapter_1.element" destination="normalized_fmri_file"/>
     </links>
-    <inputs>
-        <input name="fmri_file" dest="ungzip_funcadapter.fname"/>
-        <input name="coregistered_struct_file" dest="ungzip_structadapter.fname"/>
-        <input name="template_file" dest="ungzip_templateadapter.fname"/>
-        <input name="struct_voxel_sizes" dest="spm_normalize.write_voxel_sizes"/>
-        <input name="func_voxel_sizes" dest="spm_funcnormalize.write_voxel_sizes"/>
-    </inputs>
-    <outputs>
-        <output name="normalization_parameters" src="spm_normalize._normalization_parameters"/>
-        <output name="normalized_struct_file" src="spm_normalize._normalized_source"/>
-        <output name="normalized_fmri_file" src="spm_output_adapter_1.element"/>
-    </outputs>
     <positions>
-        <position process="inputs" x="-1056" y="274"/>
-        <position process="spm_input_adapter_1" x="-379" y="-179"/>
-        <position process="spm_output_adapter_1" x="119" y="442"/>
-        <position process="ungzip_funcadapter" x="-601" y="-254"/>
-        <position process="ungzip_structadapter" x="-881" y="737"/>
-        <position process="ungzip_templateadapter" x="-1092" y="813"/>
-        <position process="spm_normalize" x="-639" y="488"/>
-        <position process="spm_funcnormalize" x="-141" y="-229"/>
-        <position process="outputs" x="220" y="790"/>
+        <position unit="inputs" x="-1056" y="274"/>
+        <position unit="spm_input_adapter_1" x="-379" y="-179"/>
+        <position unit="spm_output_adapter_1" x="119" y="442"/>
+        <position unit="ungzip_funcadapter" x="-601" y="-254"/>
+        <position unit="ungzip_structadapter" x="-881" y="737"/>
+        <position unit="ungzip_templateadapter" x="-1092" y="813"/>
+        <position unit="spm_normalize" x="-639" y="488"/>
+        <position unit="spm_funcnormalize" x="-141" y="-229"/>
+        <position unit="outputs" x="220" y="790"/>
     </positions>
-    <scale factor="0.4"/> 
+    <zoom level="0.6"/> 
 </pipeline>

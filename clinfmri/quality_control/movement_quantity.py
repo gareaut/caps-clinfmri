@@ -20,7 +20,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
 
 # Pclinfmri import
-from pclinfmri.quality_assurance.stats_utils import format_time_serie
+#from pclinfmri.quality_assurance.stats_utils import format_time_serie
 
 
 def time_serie_mq(image_file, realignment_parameters, package,
@@ -34,11 +34,7 @@ def time_serie_mq(image_file, realignment_parameters, package,
     ValueError: if the image dimension is different than 4 or the realignement
     parameters file is not valid.
 
-    <process>
-        <return name="snap_mvt" type="File" desc="A snap with the movement
-            information." optional="True"/>
-        <return name="displacement_file" type="File" desc="The maximum
-            displacement within each image." optional="True"/>
+    <unit>
         <input name="image_file" type="File" desc="A functional volume."/>
         <input name="realignment_parameters" type="File" desc="Estimated
             spm translation and rotation parameters during the realignment."/>
@@ -51,11 +47,15 @@ def time_serie_mq(image_file, realignment_parameters, package,
         <input name="slice_axis" type="Int" desc="Axis of the array that
             varies over image slice. The default is the last non-time axis."
              optional="True"/>
-        <input name="mvt_thr" type="Float" desc="the translation threshold 
+        <input name="mvt_thr" type="Float" desc="the translation threshold
             (mm) used to detect outliers." optional="True"/>
         <input name="rot_thr" type="Float" desc="the rotation threshold (rad)
             used to detect outliers." optional="True"/>
-    </process>
+        <output name="snap_mvt" type="File" desc="A snap with the movement
+            information." optional="True"/>
+        <output name="displacement_file" type="File" desc="The maximum
+            displacement within each image." optional="True"/>
+    </unit>
     """
     # Load the image and get the associated numpy array
     image = nibabel.load(image_file)
@@ -164,7 +164,7 @@ def deformation_field(rigid, shape, affine):
     for item in mesh:
         item.shape += (1, )
     mesh = numpy.concatenate(mesh , axis=3)
-            
+
     # Apply the rigid transform
     points = field_dot(affine[:3, :3], mesh)
     points = field_add(points, affine[:3, 3])
@@ -320,11 +320,11 @@ def display_drift(rigid_params, maxdisplacment, output_fname, package,
     pdf = PdfPages(output_fname)
     try:
 
-        # Display translation parameters 
+        # Display translation parameters
         fig = plt.figure()
         plot = fig.add_subplot(111)
         plot.grid()
-        plt.title("Translation drift (in mm)")  
+        plt.title("Translation drift (in mm)")
         outliers = []
         for i, label in enumerate(["x", "y", "z"]):
             plot.plot(x, rigid_params[:, i], label=label)
@@ -338,11 +338,11 @@ def display_drift(rigid_params, maxdisplacment, output_fname, package,
         pdf.savefig(fig)
         plt.close()
 
-        # Display rotation parameters 
+        # Display rotation parameters
         fig = plt.figure()
         plot = fig.add_subplot(111)
         plot.grid()
-        plt.title("Rotation drift (in degree)")  
+        plt.title("Rotation drift (in degree)")
         outliers = []
         for i, label in enumerate(["pitch", "roll", "yaw"]):
             plot.plot(x, rigid_params[:, i + 3] * 180. / numpy.pi, label=label)
@@ -360,7 +360,7 @@ def display_drift(rigid_params, maxdisplacment, output_fname, package,
         fig = plt.figure()
         plot = fig.add_subplot(111)
         plot.grid()
-        plt.title("Maximum displacement (in mm)")  
+        plt.title("Maximum displacement (in mm)")
         plot.plot(x, maxdisplacment)
         plot.axes.set_xlabel("Volumes")
         plot.axes.set_ylabel("Max Displacements")
@@ -405,5 +405,5 @@ if __name__ == "__main__":
     localizer_dataset = get_sample_data("localizer")
     time_serie_mq(localizer_dataset.fmri, localizer_dataset.mouvment_parameters,
                   "SPM", "/volatile/nsap/catalogue/quality_assurance/",
-                  time_axis=-1, slice_axis=-2)  
-                     
+                  time_axis=-1, slice_axis=-2)
+

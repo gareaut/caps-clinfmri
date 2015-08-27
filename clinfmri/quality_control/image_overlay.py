@@ -19,9 +19,7 @@ def edges_overlay(input_file, template_file, prefix="e", output_directory=None):
     """ Plot image outline on top of another image (useful for checking
     registration)
 
-    <process>
-        <return name="edges_file" type="File" desc="A snap with two overlayed
-            images."/>
+    <unit>
         <input name="input_file" type="File" desc="An image to display."/>
         <input name="template_file" type="File" desc="The target image to
             extract the edges from."/>
@@ -29,7 +27,9 @@ def edges_overlay(input_file, template_file, prefix="e", output_directory=None):
             file."/>
         <input name="output_directory" type="Directory" desc="The destination
             folder." optional="True"/>
-    </process>
+        <output name="edges_file" type="File" desc="A snap with two overlayed
+            images."/>
+    </unit>
     """
     # Check the input images exist on the file system
     for in_file in [input_file, template_file]:

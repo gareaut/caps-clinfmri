@@ -6,43 +6,43 @@
         also estimate the inner and outer skull surfaces, and outer scalp
         surface, if you have good quality T1 and T2 input images.
     </docstring>
-    <processes>
-        <standard name="fsl_bet">
+    <units>
+        <unit name="fsl_bet">
             <module>nipype.interfaces.fsl.BET</module>
-            <force name="in_file" value="Undefined"/>
-            <force name="functional" value="False"/>
-            <force name="mask" value="True"/>
-            <force name="mesh" value="False"/>
-            <force name="skull" value="False"/>
-            <force name="frac" value="0.5"/>
-            <force name="terminal_output" value="stream"/>
-            <force name="output_directory" value="Undefined"/>
-        </standard>
-    </processes>
-    <inputs>
-        <input name="input_image_file" dest="fsl_bet.in_file"/>
-        <input name="generate_binary_mask" dest="fsl_bet.mask"/>
-        <input name="use_4d_input" dest="fsl_bet.functional"/>
-        <input name="generate_mesh" dest="fsl_bet.mesh"/>
-        <input name="generate_skull" dest="fsl_bet.skull"/>
-        <input name="bet_threshold" dest="fsl_bet.frac"/>
-    </inputs>
-    <outputs>
-        <output name="bet_outskin_mesh_file" src="fsl_bet._outskin_mesh_file"/>
-        <output name="bet_outskull_mesh_file" src="fsl_bet._outskull_mesh_file"/>
-        <output name="bet_out_file" src="fsl_bet._out_file"/>
-        <output name="bet_outskull_mask_file" src="fsl_bet._outskull_mask_file"/>
-        <output name="bet_inskull_mesh_file" src="fsl_bet._inskull_mesh_file"/>
-        <output name="bet_skull_mask_file" src="fsl_bet._skull_mask_file"/>
-        <output name="bet_inskull_mask_file" src="fsl_bet._inskull_mask_file"/>
-        <output name="bet_meshfile" src="fsl_bet._meshfile"/>
-        <output name="bet_outskin_mask_file" src="fsl_bet._outskin_mask_file"/>
-        <output name="bet_mask_file" src="fsl_bet._mask_file"/>
-    </outputs>
+            <set name="in_file" value="Undefined"/>
+            <set name="functional" value="False"/>
+            <set name="mask" value="True"/>
+            <set name="mesh" value="False"/>
+            <set name="skull" value="False"/>
+            <set name="frac" value="0.5"/>
+            <set name="terminal_output" value="'stream'"/>
+            <set name="output_directory" value="Undefined"/>
+        </unit>
+    </units>
+    <links>
+        <!-- INPUTS -->
+        <link source="input_image_file" destination="fsl_bet.in_file"/>
+        <link source="generate_binary_mask" destination="fsl_bet.mask"/>
+        <link source="use_4d_input" destination="fsl_bet.functional"/>
+        <link source="generate_mesh" destination="fsl_bet.mesh"/>
+        <link source="generate_skull" destination="fsl_bet.skull"/>
+        <link source="bet_threshold" destination="fsl_bet.frac"/>
+        <!-- OUTPUTS -->
+        <link source="fsl_bet._outskin_mesh_file" destination="bet_outskin_mesh_file"/>
+        <link source="fsl_bet._outskull_mesh_file" destination="bet_outskull_mesh_file"/>
+        <link source="fsl_bet._out_file" destination="bet_out_file"/>
+        <link source="fsl_bet._outskull_mask_file" destination="bet_outskull_mask_file"/>
+        <link source="fsl_bet._inskull_mesh_file" destination="bet_inskull_mesh_file"/>
+        <link source="fsl_bet._skull_mask_file" destination="bet_skull_mask_file"/>
+        <link source="fsl_bet._inskull_mask_file" destination="bet_inskull_mask_file"/>
+        <link source="fsl_bet._meshfile" destination="bet_meshfile"/>
+        <link source="fsl_bet._outskin_mask_file" destination="bet_outskin_mask_file"/>
+        <link source="fsl_bet._mask_file" destination="bet_mask_file"/>
+    </links>
     <positions>
-        <position process="inputs" x="-437" y="9"/>
-        <position process="fsl_bet" x="-104" y="-112"/>
-        <position process="outputs" x="240" y="544"/>
+        <position unit="inputs" x="-437" y="9"/>
+        <position unit="fsl_bet" x="-104" y="-112"/>
+        <position unit="outputs" x="240" y="544"/>
     </positions>
-    <scale factor="0.5"/> 
+    <zoom level="0.7"/> 
 </pipeline>

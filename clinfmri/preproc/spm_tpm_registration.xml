@@ -6,78 +6,76 @@
             * NewSegment: Structural Normalization anat -> template
             * Functional/Structural normalization
     </docstring>
-    <processes>
-        <standard name="spm_input_adapter_1">
-            <module>pclinfmri.adapters.io.element_to_list</module>
-        </standard>
-        <standard name="spm_input_adapter_2">
-            <module>pclinfmri.adapters.io.element_to_list</module>
-        </standard>
-        <standard name="spm_output_adapter_1">
-            <module>pclinfmri.adapters.io.list_to_element</module>
-        </standard>
-        <standard name="spm_output_adapter_2">
-            <module>pclinfmri.adapters.io.list_to_element</module>
-        </standard>
-        <standard name="ungzip_adapter">
-            <module>pclinfmri.adapters.io.ungzip_file</module>
-            <force name="prefix" value="u"/>
-            <force name="output_directory" value="Undefined"/>
-        </standard>
-        <standard name="spm_newsegment">
-            <module>pclinfmri.utils.spm_new_segment.xml</module>
-            <force name="forward_deformation_field" value="Undefined"/>
-            <force name="output_directory" value="Undefined"/>
-        </standard>
-        <standard name="spm_structnormalize">
-            <module>pclinfmri.nipype_interfaces.spm.ApplyDeformationField</module>
-            <force name="voxel_sizes" value="[1., 1., 1.]"/>
-            <force name="bounding_box" value="[[-78, -112, -50], [78, 76, 85]]"/>
-            <force name="interpolation" value="1"/>
-            <force name="output_directory" value="Undefined"/>
-        </standard>
-        <standard name="spm_funcnormalize">
-            <module>pclinfmri.nipype_interfaces.spm.ApplyDeformationField</module>
-            <force name="voxel_sizes" value="[3., 3., 3.]"/>
-            <force name="bounding_box" value="[[-78, -112, -50], [78, 76, 85]]"/>
-            <force name="interpolation" value="1"/>
-            <force name="output_directory" value="Undefined"/>
-        </standard>
-    </processes>
+    <units>
+        <unit name="spm_input_adapter_1">
+            <module>mmutils.adapters.io.element_to_list</module>
+        </unit>
+        <unit name="spm_input_adapter_2">
+            <module>mmutils.adapters.io.element_to_list</module>
+        </unit>
+        <unit name="spm_output_adapter_1">
+            <module>mmutils.adapters.io.list_to_element</module>
+        </unit>
+        <unit name="spm_output_adapter_2">
+            <module>mmutils.adapters.io.list_to_element</module>
+        </unit>
+        <unit name="ungzip_adapter">
+            <module>mmutils.adapters.io.ungzip_file</module>
+            <set name="prefix" value="'u'"/>
+            <set name="output_directory" value="Undefined"/>
+        </unit>
+        <unit name="spm_new_segment">
+            <module>clinfmri.utils.spm_new_segment.xml</module>
+            <set name="forward_deformation_field" value="Undefined"/>
+            <set name="output_directory" value="Undefined"/>
+        </unit>
+        <unit name="spm_structnormalize">
+            <module>clinfmri.nipype_interfaces.spm.ApplyDeformationField</module>
+            <set name="voxel_sizes" value="[1., 1., 1.]"/>
+            <set name="bounding_box" value="[[-78, -112, -50], [78, 76, 85]]"/>
+            <set name="interpolation" value="1"/>
+            <set name="output_directory" value="Undefined"/>
+        </unit>
+        <unit name="spm_funcnormalize">
+            <module>clinfmri.nipype_interfaces.spm.ApplyDeformationField</module>
+            <set name="voxel_sizes" value="[3., 3., 3.]"/>
+            <set name="bounding_box" value="[[-78, -112, -50], [78, 76, 85]]"/>
+            <set name="interpolation" value="1"/>
+            <set name="output_directory" value="Undefined"/>
+        </unit>
+    </units>
     <links>
         <!-- ADAPTERS -->
-        <link src="ungzip_adapter.ungzipfname" dest="spm_input_adapter_1.element"/>
-        <link src="spm_newsegment.bias_corrected_file" dest="spm_input_adapter_2.element"/>
-        <link src="spm_funcnormalize._normalized_files" dest="spm_output_adapter_1.listobj"/>
-        <link src="spm_structnormalize._normalized_files" dest="spm_output_adapter_2.listobj"/>
+        <link source="ungzip_adapter.ungzipfname" destination="spm_input_adapter_1.element"/>
+        <link source="spm_new_segment.bias_corrected_file" destination="spm_input_adapter_2.element"/>
+        <link source="spm_funcnormalize._normalized_files" destination="spm_output_adapter_1.listobj"/>
+        <link source="spm_structnormalize._normalized_files" destination="spm_output_adapter_2.listobj"/>
         <!-- SPM -->
-        <link src="spm_input_adapter_1.adaptedelement" dest="spm_funcnormalize.in_files"/>
-        <link src="spm_input_adapter_2.adaptedelement" dest="spm_structnormalize.in_files"/>
-        <link src="spm_newsegment.forward_deformation_field" dest="spm_funcnormalize.deformation_field"/>
-        <link src="spm_newsegment.forward_deformation_field" dest="spm_structnormalize.deformation_field"/>
+        <link source="spm_input_adapter_1.adaptedelement" destination="spm_funcnormalize.in_files"/>
+        <link source="spm_input_adapter_2.adaptedelement" destination="spm_structnormalize.in_files"/>
+        <link source="spm_new_segment.forward_deformation_field" destination="spm_funcnormalize.deformation_field"/>
+        <link source="spm_new_segment.forward_deformation_field" destination="spm_structnormalize.deformation_field"/>
+        <!-- INPUTS -->
+        <link source="fmri_file" destination="ungzip_adapter.fname"/>
+        <link source="coregistered_struct_file" destination="spm_new_segment.coregistered_struct_file"/>
+        <link source="struct_voxel_sizes" destination="spm_structnormalize.voxel_sizes"/>
+        <link source="func_voxel_sizes" destination="spm_funcnormalize.voxel_sizes"/>
+        <!-- OUTPUTS -->
+        <link source="spm_new_segment.forward_deformation_field" destination="normalization_parameters"/>
+        <link source="spm_output_adapter_1.element" destination="normalized_fmri_file"/>
+        <link source="spm_output_adapter_2.element" destination="normalized_struct_file"/>
     </links>
-    <inputs>
-        <input name="fmri_file" dest="ungzip_adapter.fname"/>
-        <input name="coregistered_struct_file" dest="spm_newsegment.coregistered_struct_file"/>
-        <input name="struct_voxel_sizes" dest="spm_structnormalize.voxel_sizes"/>
-        <input name="func_voxel_sizes" dest="spm_funcnormalize.voxel_sizes"/>
-    </inputs>
-    <outputs>
-        <output name="normalization_parameters" src="spm_newsegment.forward_deformation_field"/>
-        <output name="normalized_fmri_file" src="spm_output_adapter_1.element"/>
-        <output name="normalized_struct_file" src="spm_output_adapter_2.element"/>
-    </outputs>
     <positions>
-        <position process="inputs" x="-781" y="401"/>
-        <position process="spm_input_adapter_1" x="-178" y="-14"/>
-        <position process="spm_input_adapter_2" x="-161" y="448"/>
-        <position process="spm_output_adapter_1" x="299" y="124"/>
-        <position process="spm_output_adapter_2" x="294" y="697"/>
-        <position process="ungzip_adapter" x="-365" y="-90"/>
-        <position process="spm_newsegment" x="-491" y="242"/>
-        <position process="spm_funcnormalize" x="85" y="-89"/>
-        <position process="spm_structnormalize" x="85" y="374"/>
-        <position process="outputs" x="493" y="256"/>
+        <position unit="inputs" x="-781" y="401"/>
+        <position unit="spm_input_adapter_1" x="-178" y="-14"/>
+        <position unit="spm_input_adapter_2" x="-161" y="448"/>
+        <position unit="spm_output_adapter_1" x="299" y="124"/>
+        <position unit="spm_output_adapter_2" x="294" y="697"/>
+        <position unit="ungzip_adapter" x="-365" y="-90"/>
+        <position unit="spm_new_segment" x="-491" y="242"/>
+        <position unit="spm_funcnormalize" x="85" y="-89"/>
+        <position unit="spm_structnormalize" x="85" y="374"/>
+        <position unit="outputs" x="493" y="256"/>
     </positions>
-    <scale factor="0.4"/> 
+    <zoom level="0.4"/> 
 </pipeline>

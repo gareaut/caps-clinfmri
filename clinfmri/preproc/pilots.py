@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 ##########################################################################
-# NSAp - Copyright (C) CEA, 2013
+# NSAp - Copyright (C) CEA, 2015
 # Distributed under the terms of the CeCILL-B license, as published by
 # the CEA-CNRS-INRIA. Refer to the LICENSE file or to
 # http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
@@ -17,7 +17,7 @@ except:
 
 @pilotfunction
 def pilot_slice_timing():
-    """ 
+    """
     Slice Timing Correction
     =======================
     """
@@ -25,7 +25,7 @@ def pilot_slice_timing():
     import os
     from caps.toy_datasets import get_sample_data
     from capsul.study_config import StudyConfig
-    from pclinfmri.preproc.pipeline import SliceTiming
+    from capsul.process import get_process_instance
 
     """
     Study configuration
@@ -34,9 +34,14 @@ def pilot_slice_timing():
     We first define the working directory and guarantee this folder exists on
     the file system:
     """
-    working_dir = "/volatile/nsap/pclinfmri/spmslicetiming"
+    working_dir = "/volatile/nsap/catalogue/pclinfmri/slicetiming"
     if not os.path.isdir(working_dir):
         os.makedirs(working_dir)
+
+    """
+    Now we get the pipeline from its definition (xml file)
+    """
+    pipeline = get_process_instance("clinfmri.preproc.slice_timing.xml")
 
     """
     And then define the study configuration (here we activate the smart
@@ -44,7 +49,8 @@ def pilot_slice_timing():
     processed):
     """
     study_config = StudyConfig(
-        modules=["SmartCachingConfig", "MatlabConfig", "SPMConfig", "FSLConfig",
+        modules=["SmartCachingConfig", "MatlabConfig", "SPMConfig",
+                 "FSLConfig",
                  "NipypeConfig"],
         use_smart_caching=True,
         fsl_config="/etc/fsl/4.1/fsl.sh",
@@ -77,14 +83,13 @@ def pilot_slice_timing():
     :ref:`slice timing pipeline <pclinfmri.preproc.pipeline.SliceTiming>` that
     define the different step of the processings:
     """
-    pipeline = SliceTiming()
     print pipeline.get_input_spec()
 
     """
     Now we need now to parametrize this pipeline:
     """
     pipeline.fmri_file = toy_dataset.fmri
-    pipeline.select_slicer = "spm"
+    pipeline.select_slicer = "fsl"
     pipeline.force_repetition_time = toy_dataset.TR
     pipeline.force_slice_orders = [index + 1 for index in range(40)]
 
@@ -106,7 +111,7 @@ def pilot_slice_timing():
 
 @pilotfunction
 def pilot_realignement():
-    """ 
+    """
     Realignement
     ============
     """
@@ -114,7 +119,7 @@ def pilot_realignement():
     import os
     from caps.toy_datasets import get_sample_data
     from capsul.study_config import StudyConfig
-    from pclinfmri.preproc.pipeline import SpmRealignement
+    from capsul.process import get_process_instance
 
     """
     Study configuration
@@ -123,9 +128,14 @@ def pilot_realignement():
     We first define the working directory and guarantee this folder exists on
     the file system:
     """
-    working_dir = "/volatile/nsap/pclinfmri/spmrealignement"
+    working_dir = "/volatile/nsap/catalogue/pclinfmri/realignement"
     if not os.path.isdir(working_dir):
         os.makedirs(working_dir)
+
+    """
+    Now we get the pipeline from its definition (xml file)
+    """
+    pipeline = get_process_instance("clinfmri.preproc.spm_realignement.xml")
 
     """
     And then define the study configuration (here we activate the smart
@@ -164,7 +174,6 @@ def pilot_realignement():
     :ref:`slice timing pipeline <pclinfmri.preproc.pipeline.SliceTiming>` that
     define the different step of the processings:
     """
-    pipeline = SpmRealignement()
     print pipeline.get_input_spec()
 
     """
@@ -191,7 +200,7 @@ def pilot_realignement():
 
 @pilotfunction
 def pilot_coregistration():
-    """ 
+    """
     Coregistration
     ==============
     """
@@ -199,7 +208,7 @@ def pilot_coregistration():
     import os
     from caps.toy_datasets import get_sample_data
     from capsul.study_config import StudyConfig
-    from pclinfmri.preproc.pipeline import SpmCoregistration
+    from capsul.process import get_process_instance
 
     """
     Study configuration
@@ -208,9 +217,14 @@ def pilot_coregistration():
     We first define the working directory and guarantee this folder exists on
     the file system:
     """
-    working_dir = "/volatile/nsap/pclinfmri/spmcoregistration"
+    working_dir = "/volatile/nsap/catalogue/pclinfmri/coregistration"
     if not os.path.isdir(working_dir):
         os.makedirs(working_dir)
+
+    """
+    Now we get the pipeline from its definition (xml file)
+    """
+    pipeline = get_process_instance("clinfmri.preproc.spm_coregistration.xml")
 
     """
     And then define the study configuration (here we activate the smart
@@ -249,7 +263,6 @@ def pilot_coregistration():
     :ref:`slice timing pipeline <pclinfmri.preproc.pipeline.SliceTiming>` that
     define the different step of the processings:
     """
-    pipeline = SpmCoregistration()
     print pipeline.get_input_spec()
 
     """
@@ -278,7 +291,7 @@ def pilot_coregistration():
 
 @pilotfunction
 def pilot_normalization():
-    """ 
+    """
     Normalization
     =============
     """
@@ -286,7 +299,7 @@ def pilot_normalization():
     import os
     from caps.toy_datasets import get_sample_data
     from capsul.study_config import StudyConfig
-    from pclinfmri.preproc.pipeline import SpmNormalization
+    from capsul.process import get_process_instance
 
     """
     Study configuration
@@ -295,9 +308,14 @@ def pilot_normalization():
     We first define the working directory and guarantee this folder exists on
     the file system:
     """
-    working_dir = "/volatile/nsap/pclinfmri/spmnormalization"
+    working_dir = "/volatile/nsap/catalogue/pclinfmri/normalization"
     if not os.path.isdir(working_dir):
         os.makedirs(working_dir)
+
+    """
+    Now we get the pipeline from its definition (xml file)
+    """
+    pipeline = get_process_instance("clinfmri.preproc.spm_normalization.xml")
 
     """
     And then define the study configuration (here we activate the smart
@@ -336,7 +354,6 @@ def pilot_normalization():
     :ref:`slice timing pipeline <pclinfmri.preproc.pipeline.SliceTiming>` that
     define the different step of the processings:
     """
-    pipeline = SpmNormalization()
     print pipeline.get_input_spec()
 
     """
@@ -364,7 +381,7 @@ def pilot_normalization():
 
 @pilotfunction
 def pilot_template_registration():
-    """ 
+    """
     Template Registration
     =====================
     """
@@ -381,9 +398,15 @@ def pilot_template_registration():
     We first define the working directory and guarantee this folder exists on
     the file system:
     """
-    working_dir = "/volatile/nsap/pclinfmri/spmtemplateregistration"
+    working_dir = "/volatile/nsap/catalogue/pclinfmri/template_registration"
     if not os.path.isdir(working_dir):
         os.makedirs(working_dir)
+
+    """
+    Now we get the pipeline from its definition (xml file)
+    """
+    pipeline = get_process_instance(
+        "clinfmri.preproc.pipeline.spm_template_registration.xml")
 
     """
     And then define the study configuration (here we activate the smart
@@ -423,8 +446,6 @@ def pilot_template_registration():
     :ref:`slice timing pipeline <pclinfmri.preproc.pipeline.SliceTiming>` that
     define the different step of the processings:
     """
-    pipeline = get_process_instance(
-        "pclinfmri.preproc.pipeline.spm_template_registration.xml")
     print pipeline.get_input_spec()
 
     """
@@ -452,7 +473,7 @@ def pilot_template_registration():
 
 @pilotfunction
 def pilot_preproc():
-    """ 
+    """
     FMRI preprocessings
     ===================
     """
@@ -469,9 +490,15 @@ def pilot_preproc():
     We first define the working directory and guarantee this folder exists on
     the file system:
     """
-    working_dir = "/volatile/nsap/pclinfmri/fmripreproc"
+    working_dir = "/volatile/nsap/catalogue/pclinfmri/fmri_preproc"
     if not os.path.isdir(working_dir):
         os.makedirs(working_dir)
+
+    """
+    Now we get the pipeline from its definition (xml file)
+    """
+    pipeline = get_process_instance(
+        "clinfmri.preproc.pipeline.fmri_preproc.xml")
 
     """
     And then define the study configuration (here we activate the smart
@@ -479,7 +506,8 @@ def pilot_preproc():
     processed):
     """
     study_config = StudyConfig(
-        modules=["SmartCachingConfig", "MatlabConfig", "SPMConfig", "FSLConfig",
+        modules=["SmartCachingConfig", "MatlabConfig", "SPMConfig",
+                 "FSLConfig",
                  "NipypeConfig"],
         use_smart_caching=True,
         fsl_config="/etc/fsl/4.1/fsl.sh",
@@ -549,5 +577,5 @@ if __name__ == "__main__":
     #pilot_realignement()
     #pilot_coregistration()
     #pilot_normalization()
-    #pilot_template_registration()
-    pilot_preproc()
+    pilot_template_registration()
+    #pilot_preproc()
