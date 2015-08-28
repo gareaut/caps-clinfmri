@@ -13,8 +13,8 @@ import numpy
 import nibabel
 
 
-def time_serie_metadata(fmri_file, force_repetition_time,
-                        force_slice_orders):
+def time_serie_metadata(fmri_file, force_repetition_time=0,
+                        force_slice_orders=[]):
     """ Information of the time serie formatted accordingly to the selected
     software.
 

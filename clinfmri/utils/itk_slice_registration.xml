@@ -29,8 +29,8 @@
         <link source="input_file" destination="register.in_file"/>
         <link source="input_file" destination="do_nothing.input_value"/>
         <!-- OUTPUTS -->
-        <link source="do_nothing.output_value" destination="registered_file_no"/>
-        <link source="register.register_file" destination="registered_file_yes"/>
+        <link source="do_nothing.output_value" destination="registered_file"/>
+        <link source="register.register_file" destination="registered_file"/>
     </links>
     <positions>
         <position unit="inputs" x="-372" y="25"/>
