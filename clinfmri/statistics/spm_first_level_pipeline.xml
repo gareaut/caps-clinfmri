@@ -1,108 +1,74 @@
 <pipeline>
     <docstring>
-        SPM8 fMRI First Level Analysis.
+        SPM8 fMRI First Level Analysis - Iterative mode.
 
         .. note::
 
             * `fmri_sessions` and `behavioral_data` must have the same number
               of elements.
             * `onsets` and `durations` values must have the same units as the
-              TR used in the processings (ie. seconds).
+              TR used in the unitsings (ie. seconds).
+            set name="mask_threshold" value="-Inf"
     </docstring>
-    <processes>
-        <standard name="model">
-            <module>clinfmri.statistics.spm_model_specification.spm_model_specification</module>
-            <force name="concatenate_runs" value="True"/>
-            <force name="delimiter" value="\t"/>
-            <force name="start" value="0"/>
-            <force name="high_pass_filter_cutoff" value="128"/>
-        </standard>
-        <standard name="design">
-            <module>nipype.interfaces.spm.Level1Design</module>
-            <force name="timing_units" value="secs"/>
-            <force name="microtime_resolution" value="16"/>
-            <force name="microtime_onset" value="1"/>
-            <force name="volterra_expansion_order" value="1"/>
-            <force name="global_intensity_normalization" value="none"/>
-            <force name="model_serial_correlations" value="AR(1)"/>
-            <force name="factor_info" value="[{'name': {}}, {'levels': {}}]"/>
-            <force name="bases" value="{'hrf': {'derivs': [1, 0]}}"/>
-            <force name="mask_threshold" value="-Inf"/>
-            <force name="use_v8struct" value="True"/>
-            <force name="mfile" value="True"/>
-            <force name="timing_units" value="secs" usedefault="True"/>
-        </standard>
-        <standard name="snap" processing="False">
-            <module>clinfmri.statistics.spm_utils.spm_save_design</module>
-            <force name="output_directory" value="Undefined"/>
-        </standard>
-        <standard name="estimate">
-            <module>nipype.interfaces.spm.EstimateModel</module>
-            <force name="estimation_method" value="{'Classical': 1}"/>
-            <force name="use_v8struct" value="True"/>
-            <force name="mfile" value="True"/>
-            <force name="group_contrast" value="Undefined"/>
-        </standard>
-        <standard name="contrast">
-            <module>nipype.interfaces.spm.EstimateContrast</module>
-            <force name="beta_images" copyfile="Temp"/>
-            <force name="residual_image" copyfile="Temp"/>
-        </standard>
-        <standard name="encoding">
-            <module>clinfmri.statistics.spm_utils.spm_image_nii_encoding</module>
-            <force name="output_directory" value="Undefined"/>
-        </standard>
-    </processes>
+    <units>
+        <unit name="first_level_pipeline">
+            <module>clinfmri.statistics.spm_first_level_pipeline_bbox.xml</module>
+            <set name="output_directory" value="None"/>
+            <iterinput name="contrasts"/>
+            <iterinput name="fmri_sessions"/>
+            <iterinput name="behavioral_data"/>
+            <iterinput name="realignment_parameters"/>
+            <iteroutput name="spm_design_mat_file"/>
+            <iteroutput name="spm_design_snap"/>
+            <iteroutput name="spm_estimate_mat_file"/>
+            <iteroutput name="spm_beta_images"/>
+            <iteroutput name="out_mask_image"/>
+            <iteroutput name="RPVimage"/>
+            <iteroutput name="spm_contrast_mat_file"/>
+            <iteroutput name="spm_F_images"/>
+            <iteroutput name="spm_T_images"/>
+            <iteroutput name="spm_con_images"/>
+            <iteroutput name="spm_ess_images"/>
+            <iteroutput name="model_specifications"/>
+        </unit>
+    </units>
     <links>
-        <link src="output_directory" dest="design.spm_mat_dir"/>
-        <link src="time_repetition" dest="design.interscan_interval"/>
-        <link src="model.session_info" dest="design.session_info"/>
-        <link src="design._spm_mat_file" dest="snap.spm_mat_file"/>
-        <link src="output_directory" dest="snap.output_directory"/>
-        <link src="design._spm_mat_file" dest="estimate.spm_mat_file"/>
-        <link src="estimate._spm_mat_file" dest="contrast.spm_mat_file"/>
-        <link src="estimate._residual_image" dest="contrast.residual_image"/>
-        <link src="estimate._beta_images" dest="contrast.beta_images"/>
-        <link src="contrasts" dest="encoding.contrasts"/>
-        <link src="contrast._spmF_images" dest="encoding.spmF_images"/>
-        <link src="contrast._spmT_images" dest="encoding.spmT_images"/>
-        <link src="contrast._con_images" dest="encoding.con_images"/>
-        <link src="contrast._ess_images" dest="encoding.ess_images"/>
+        <!-- INPUTS -->
+        <link source="contrasts" destination="first_level_pipeline.itercontrasts"/>
+        <link source="fmri_sessions" destination="first_level_pipeline.iterfmri_sessions"/>
+        <link source="behavioral_data" destination="first_level_pipeline.iterbehavioral_data"/>
+        <link source="realignment_parameters" destination="first_level_pipeline.iterrealignment_parameters"/>
+        <link source="condition_name" destination="first_level_pipeline.condition_name"/>
+        <link source="high_pass_filter_cutoff" destination="first_level_pipeline.high_pass_filter_cutoff"/>
+        <link source="start" destination="first_level_pipeline.start"/>
+        <link source="onset_name" destination="first_level_pipeline.onset_name"/>
+        <link source="time_repetition" destination="first_level_pipeline.time_repetition"/>
+        <link source="output_directory" destination="first_level_pipeline.output_directory"/>
+        <link source="smoother_switch" destination="first_level_pipeline.smoother_switch"/>
+        <link source="delimiter" destination="first_level_pipeline.delimiter"/>
+        <link source="bases" destination="first_level_pipeline.bases"/>
+        <link source="duration_name" destination="first_level_pipeline.duration_name"/>
+        <link source="concatenate_runs" destination="first_level_pipeline.concatenate_runs"/>
+        <link source="mask_image" destination="first_level_pipeline.mask_image"/>
+        <link source="fwhm" destination="first_level_pipeline.fwhm"/>
+        <!-- OUTPUTS -->
+        <link source="first_level_pipeline.iterspm_design_mat_file" destination="spm_design_mat_file"/>
+        <link source="first_level_pipeline.iterspm_design_snap" destination="spm_design_snap"/>
+        <link source="first_level_pipeline.iterspm_estimate_mat_file" destination="spm_estimate_mat_file"/>
+        <link source="first_level_pipeline.iterspm_beta_images" destination="spm_beta_images"/>
+        <link source="first_level_pipeline.iterout_mask_image" destination="out_mask_image"/>
+        <link source="first_level_pipeline.iterRPVimage" destination="RPVimage"/>
+        <link source="first_level_pipeline.iterspm_contrast_mat_file" destination="spm_contrast_mat_file"/>
+        <link source="first_level_pipeline.iterspm_F_images" destination="spm_F_images"/>
+        <link source="first_level_pipeline.iterspm_T_images" destination="spm_T_images"/>
+        <link source="first_level_pipeline.iterspm_con_images" destination="spm_con_images"/>
+        <link source="first_level_pipeline.iterspm_ess_images" destination="spm_ess_images"/>
+        <link source="first_level_pipeline.itermodel_specifications" destination="model_specifications"/>
     </links>
-    <inputs>
-        <input name="output_directory" dest="design.output_directory"/>
-        <input name="behavioral_data" dest="model.behavioral_data"/>
-        <input name="fmri_sessions" dest="model.fmri_sessions"/>
-        <input name="onset_name" dest="model.onset_name"/>
-        <input name="condition_name" dest="model.condition_name"/>
-        <input name="time_repetition" dest="model.time_repetition"/>
-        <input name="realignment_parameters" dest="model.realignment_parameters"/>
-        <input name="delimiter" dest="model.delimiter"/>
-        <input name="start" dest="model.start"/>
-        <input name="concatenate_runs" dest="model.concatenate_runs"/>
-        <input name="high_pass_filter_cutoff" dest="model.high_pass_filter_cutoff"/>
-        <input name="contrasts" dest="contrast.contrasts"/>
-    </inputs>
-    <outputs>
-        <output name="spm_design_mat_file" src="design._spm_mat_file"/>
-        <output name="spm_design_snap" src="snap.spm_design_snap"/>
-        <output name="spm_estimate_mat_file" src="estimate._spm_mat_file"/>
-        <output name="spm_beta_images" src="estimate._beta_images"/>
-        <output name="spm_contrast_mat_file" src="contrast._spm_mat_file"/>
-        <output name="spm_F_images" src="encoding.nii_spmF_images"/>
-        <output name="spm_T_images" src="encoding.nii_spmT_images"/>
-        <output name="spm_con_images" src="encoding.nii_con_images"/>
-        <output name="spm_ess_images" src="encoding.nii_ess_images"/>
-    </outputs>
     <positions>
-        <position process="inputs" x="0" y="0"/>
-        <position process="model" x="200" y="200"/>
-        <position process="design" x="400" y="-200"/>
-        <position process="snap" x="600" y="-300"/>
-        <position process="estimate" x="600" y="200"/>
-        <position process="contrast" x="800" y="-200"/>
-        <position process="encoding" x="1000" y="200"/>
-        <position process="outputs" x="1200" y="0"/>
+        <position unit="inputs" x="50" y="50"/>
+        <position unit="first_level_pipeline" x="458" y="50"/>
+        <position unit="outputs" x="838" y="475"/>
     </positions>
-    <scale factor="0.5"/> 
+    <zoom level="0.6"/> 
 </pipeline>

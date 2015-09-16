@@ -22,7 +22,7 @@
         </unit>
         <unit name="spm_newsegment">
             <module>nipype.interfaces.spm.NewSegment</module>
-            <!--set name="channel_files" value="Temp"/-->
+            <set name="channel_files" value="None" copyfile="Temp"/>
             <set name="channel_info" value="(0.0001, 60, (True, True))"/>
             <set name="warping_regularization" value="4"/>
             <set name="sampling_distance" value="3"/>

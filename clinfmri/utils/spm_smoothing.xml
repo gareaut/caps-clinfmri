@@ -16,7 +16,7 @@
         </unit>
         <unit name="spm_smoothing">
             <module>nipype.interfaces.spm.Smooth</module>
-            <!-- set name="in_files" copyfile="Temp"/ -->
+            <set name="in_files" value="None" copyfile="Temp"/>
             <set name="fwhm" value="[5, 5, 5]"/>
             <set name="data_type" value="0"/>
             <set name="implicit_masking" value="False"/>

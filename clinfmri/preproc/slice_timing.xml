@@ -22,6 +22,7 @@
         </unit>
         <unit name="spm_slice_timing">
             <module>nipype.interfaces.spm.SliceTiming</module>
+            <set name="in_files" value="None" copyfile="Temp"/>
             <set name="ref_slice" value="1"/>
             <set name="out_prefix" value="'a'"/>
             <set name="output_directory" value="Undefined"/>

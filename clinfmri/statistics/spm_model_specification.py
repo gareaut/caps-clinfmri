@@ -7,18 +7,20 @@
 # for details.
 ##########################################################################
 
-# System modules
-import os
-import numpy
 
 # CAPS import
 from fmri_subject_info import get_onsets
+
+# system import
+import os
+import json
 
 
 def spm_model_specification(behavioral_data, fmri_sessions, onset_name,
                             condition_name, duration_name, time_repetition,
                             realignment_parameters, delimiter, start,
-                            concatenate_runs, high_pass_filter_cutoff):
+                            concatenate_runs, high_pass_filter_cutoff,
+                            output_directory):
     """ Specify the SPM model used in the GLM and estimate the design matrix.
 
     .. note::
@@ -28,19 +30,18 @@ def spm_model_specification(behavioral_data, fmri_sessions, onset_name,
         * `onsets` and `durations` values must have the same units as the
           TR used in the processings (ie. seconds).
 
-    <process>
-        <return name="session_info" type="List" desc="session info to leverage
-            the first level design."/>
-        <input name="behavioral_data" type="List_File" desc="list of .csv
-            session behavioral data." />
-        <input name="fmri_sessions" type="List_File" desc="list of path to
-            fMRI sessions." />
+    <unit>
+        <input name="behavioral_data" type="List" content="File" desc="list of
+            .csv session behavioral data." />
+        <input name="fmri_sessions" type="List" content="File" desc="list of
+            path to fMRI sessions." />
         <input name="onset_name" type="String" desc="the name of the column
             in the `behavioral_data` file containing the onsets."/>
         <input name="condition_name" type="String" desc="the name of the
             column in the `behavioral_data` file containing the conditions."/>
         <input name="duration_name" type="String" desc="the name of the column
-            in the `behavioral_data` file containing the condition durations."/>
+            in the `behavioral_data` file containing the condition durations.
+            "/>
         <input name="time_repetition" type="Float" desc="the repetition time
             in seconds (in seconds)."/>
         <input name="realignment_parameters" type="File" desc="path to the SPM
@@ -53,7 +54,13 @@ def spm_model_specification(behavioral_data, fmri_sessions, onset_name,
             to look like a single session."/>
         <input name="high_pass_filter_cutoff" type="Float" desc="high-pass
             filter cutoff in secs."/>
-    </process>
+        <input name="output_directory" type="Directory" desc="Where to store
+            the output file"/>
+        <output name="session_info" type="Any" desc="session info to leverage
+            the first level design."/>
+        <output name="model_specifications" type="File" desc="file containing
+            all model specifications" />
+    </unit>
     """
     # Local imports
     from nipype.interfaces.base import Bunch
@@ -63,7 +70,7 @@ def spm_model_specification(behavioral_data, fmri_sessions, onset_name,
     if len(behavioral_data) != len(fmri_sessions):
         raise ValueError("One behavioral data per session is required, "
                          "got {0} behaviral data and {1} session.".format(
-                         len(behavioral_data), len(fmri_sessions)))
+                             len(behavioral_data), len(fmri_sessions)))
 
     # Get each session acquisition conditions
     info = []
@@ -133,7 +140,15 @@ def spm_model_specification(behavioral_data, fmri_sessions, onset_name,
                 out = float(obj)
 
         return out
+
     session_info = cast_to_float(spec_interface.aggregate_outputs().get()[
         "session_info"])
 
-    return session_info
+    model_specifications = os.path.join(output_directory,
+                                        "model_specifications.json")
+
+    # save the design parameters
+    with open(model_specifications, "w") as _file:
+        json.dump(session_info, _file, indent=4)
+
+    return session_info, model_specifications
