@@ -26,7 +26,8 @@
         <unit name="spm_realignment">
             <module>nipype.interfaces.spm.Realign</module>
             <set name="jobtype" value="'estwrite'"/>
-            <set name="quality" value="0.9"/>
+            <set name="quality" value="1.0"/>
+            <set name="register_to_mean" value="False" />
             <set name="separation" value="4"/>
             <set name="fwhm" value="5"/>
             <set name="interp" value="2"/>
@@ -62,6 +63,9 @@
         <link source="fmri_file" destination="mq.image_file"/>
         <link source="fmri_file" destination="ungzip_adapter.fname"/>
         <link source="register_to_mean" destination="spm_realignment.register_to_mean"/>
+        <link source="wrap" destination="spm_realignment.wrap"/>
+        <link source="write_wrap" destination="spm_realignment.write_wrap"/>
+        <link source="write_which" destination="spm_realignment.write_which"/>
         <link source="mvt_thr" destination="mq.mvt_thr"/>
         <link source="rot_thr" destination="mq.rot_thr"/>
         <!-- OUTPUTS -->

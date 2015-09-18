@@ -61,7 +61,7 @@ def time_serie_metadata(fmri_file, force_repetition_time=0,
         slice_orders = force_slice_orders
 
     # Compute the acquisition time
-    acquisition_time = repetition_time * (1. - 1. / 40.)
+    acquisition_time = repetition_time * (1. - 1. / float(number_of_slices))
 
     return repetition_time, acquisition_time, slice_orders, number_of_slices
 

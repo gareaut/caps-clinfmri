@@ -41,6 +41,9 @@
             <module>clinfmri.utils.fsl_bet.xml</module>
             <set name="use_4d_input" value="True"/>
         </unit>
+        <unit name="structural_segmentation">
+            <module>clinfmri.utils.segmentation.xml</module>
+        </unit>
     </units>
     <links>
         <link source="reorientfunc.reoriented_file" destination="register.input_file"/>
@@ -52,10 +55,16 @@
         <link source="realign.realigned_fmri_header_modified_file" destination="normalize.fmri_file"/>
         <link source="coregister.coregistered_fmri_file" destination="normalize.coregistered_struct_file"/>
         <link source="normalize.normalized_fmri_file" destination="smoothing.image_file"/>
+        <link source="ref_slice" destination="slicer.ref_slice"/>
+        <link source="wrap" destination="realign.wrap"/>
+        <link source="write_wrap" destination="realign.write_wrap"/>
+        <link source="write_which" destination="realign.write_which"/>
         <!-- INPUTS -->
         <link source="do_reorientation" destination="reorientfunc.do_reorientation"/>
         <link source="do_registration" destination="register.do_registration"/>
         <link source="select_slicer" destination="slicer.select_slicer"/>
+        <link source="force_repetition_time" destination="slicer.force_repetition_time"/>
+        <link source="force_slice_order" destination="slicer.force_slice_orders"/>
         <link source="fmri_file" destination="reorientfunc.input_file"/>
         <link source="structural_file" destination="reorientstruct.input_file"/>
         <link source="coreg_fwhm" destination="coregister.fwhm"/>
@@ -72,6 +81,16 @@
         <link source="bet_generate_mesh" destination="bet.generate_mesh"/>
         <link source="bet_threshold" destination="bet.bet_threshold"/>
         <link source="fmri_file" destination="bet.input_image_file"/>
+        <link source="template_type" destination="normalize.template_type"/>
+
+        <link source="structural_file" destination="structural_segmentation.input_image_file"/>
+        <link source="input_image_info" destination="structural_segmentation.input_image_info"/>
+        <link source="tissues" destination="structural_segmentation.tissues"/>
+        <link source="affine_regularization" destination="structural_segmentation.affine_regularization"/>
+        <link source="warping_regularization" destination="structural_segmentation.warping_regularization"/>
+        <link source="sampling_distance" destination="structural_segmentation.sampling_distance"/>
+        <link source="write_deformation_fields" destination="structural_segmentation.write_deformation_fields"/>
+        <link source="mni_struct_template" destination="structural_segmentation.reference_volume"/>
         <!-- OUTPUTS -->
         <link source="slicer.acquisition_time" destination="acquisition_time"/>
         <link source="slicer.slice_orders" destination="slice_orders"/>
@@ -85,6 +104,7 @@
         <link source="normalize.normalized_struct_file" destination="normalized_struct_file"/>
         <link source="normalize.normalization_parameters" destination="normalization_parameters"/>
         <link source="bet.bet_out_file" destination="bet_out_file"/>
+        <link source="structural_segmentation.out_files" destination="segmented_struct_files"/>
     </links>
     <positions>
         <position unit="inputs" x="-1072" y="281"/>

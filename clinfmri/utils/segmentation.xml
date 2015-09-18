@@ -1,0 +1,61 @@
+<pipeline>
+    <docstring>
+        SPM segmentation (NewSegmentation module)
+        
+        uses spm_preproc8 to separate structural images 
+        into different tissue classes. Supports multiple modalities.
+
+        Then apply the deformations field on 
+            - Bias corrected images
+            - c1 images
+            - c2 images
+            - c3 images
+    </docstring>
+    <units>
+        <unit name="spm_segment">
+            <module>nipype.interfaces.spm.NewSegment</module>
+            <set name="output_directory" value="Undefined"/>
+        </unit>
+        <unit name="apply_deformations">
+            <module>clinfmri.utils.apply_deformations.xml</module>
+            <set name="output_directory" value="Undefined"/>
+            <set name="interpolation_degree" value='4'/>
+        </unit>
+        <unit name="list_to_element_adapter">
+            <module>mmutils.adapters.io.list_to_element</module>
+        </unit>
+    </units>
+    <links>
+        <!-- INPUTS -->
+        <link source="input_image_file" destination="spm_segment.channel_files"/>
+        <link source="input_image_info" destination="spm_segment.channel_info"/>
+        <link source="tissues" destination="spm_segment.tissues"/>
+        <link source="affine_regularization" destination="spm_segment.affine_regularization"/>
+        <link source="warping_regularization" destination="spm_segment.warping_regularization"/>
+        <link source="sampling_distance" destination="spm_segment.sampling_distance"/>
+        <link source="write_deformation_fields" destination="spm_segment.write_deformation_fields"/>
+        <link source="reference_volume" destination="apply_deformations.reference_volume"/>
+        <!-- INTERNAL LINKS -->
+        <link source="spm_segment._bias_corrected_images" destination="apply_deformations.in_files"/>
+        <link source="spm_segment._forward_deformation_field" destination="list_to_element_adapter.listobj"/>
+        <link source="list_to_element_adapter.element" destination="apply_deformations.deformation_field"/>
+        <!-- OUTPUTS -->
+        <link source="spm_segment._bias_corrected_images" destination="spm_bias_corrected_images"/>
+        <link source="spm_segment._bias_field_images" destination="spm_bias_field_images"/>
+        <link source="spm_segment._dartel_input_images" destination="spm_dartel_input_images"/>
+        <link source="spm_segment._inverse_deformation_field" destination="spm_inverse_deformation_field"/>
+        <link source="spm_segment._modulated_class_images" destination="spm_modulated_class_images"/>
+        <link source="spm_segment._native_class_images" destination="spm_native_class_images"/>
+        <link source="spm_segment._normalized_class_images" destination="spm_normalized_class_images"/>
+        <link source="spm_segment._transformation_mat" destination="spm_transformation_mat"/>
+        <link source="apply_deformations.out_files" destination="out_files"/>
+    </links>
+    <positions>
+        <position unit="inputs" x="-878" y="344"/>
+        <position unit="apply_deformations" x="99" y="430"/>
+        <position unit="outputs" x="304" y="672"/>
+        <position unit="spm_segment" x="-432" y="295" />
+        <position unit="list_to_element_adapter" x="-144" y="406"/>
+    </positions>
+    <zoom level="0.5"/> 
+</pipeline>

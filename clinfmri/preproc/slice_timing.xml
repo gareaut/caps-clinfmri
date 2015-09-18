@@ -52,6 +52,7 @@
         <link source="force_slice_orders" destination="image_manager.force_slice_orders"/>
         <link source="force_repetition_time" destination="image_manager.force_repetition_time"/>
         <link source="fmri_file" destination="image_manager.fmri_file"/>
+        <link source="ref_slice" destination="spm_slice_timing.ref_slice"/>
         <!-- ADAPTERS -->
         <link source="image_manager.slice_orders" destination="fsl_save_timings.slice_orders"/>
         <link source="fmri_file" destination="ungzip_adapter.fname"/>

@@ -40,17 +40,41 @@
             <set name="bounding_box" value="[[-78, -112, -50], [78, 76, 85]]"/>
             <set name="write_interp" value="1"/>
             <set name="jobtype" value="'write'"/>
-            <set name="out_prefix" value="'w'"/>
+            <set name="out_prefix" value="'we'"/>
+            <set name="DTC_period_cutoff" value="25"/>
+            <set name="affine_regularization__type" value="'mni'"/>
+            <set name="template_image_smoothing" value="0."/>
+            <set name="source_image_smoothing" value="8."/>
+            <set name="nonlinear_iterations" value="16"/>
+            <set name="nonlinear_regularization" value="1"/>
+            <set name="write_presereve" value="False"/>
             <set name="output_directory" value="Undefined"/>
             <set name="parameter_file" value="Undefined"/>
             <set name="source" value="Undefined"/>
+            <set name="write_interp" value="4"/>
             <set name="template" value="Undefined"/>
+            <set name="write_wrap" value="[0, 1, 0]"/>
         </unit>
+        <unit name="do_nothing">
+            <module>mmutils.adapters.io.noprocess_switch</module>
+        </unit>
+        <switch name="template_type">
+            <path name="4D">
+                <unit name="do_nothing"/>
+            </path>
+            <path name="3D">
+                <unit name="ungzip_templateadapter"/>
+                <unit name="ungzip_structadapter"/>
+                <unit name="spm_normalize"/>
+            </path>
+        </switch>
     </units>
     <links>
         <!-- ADAPTERS -->
         <link source="ungzip_funcadapter.ungzipfname" destination="spm_input_adapter_1.element"/>
         <link source="spm_funcnormalize._normalized_files" destination="spm_output_adapter_1.listobj"/>
+        <link source="templace" destination="do_nothing.input_value"/>
+        <link source="do_nothing.output_value" destination="spm_funcnormalize.template"/>
         <!-- SPM -->
         <link source="ungzip_templateadapter.ungzipfname" destination="spm_normalize.template"/>
         <link source="ungzip_structadapter.ungzipfname" destination="spm_normalize.source"/>
@@ -77,6 +101,7 @@
         <position unit="spm_normalize" x="-639" y="488"/>
         <position unit="spm_funcnormalize" x="-141" y="-229"/>
         <position unit="outputs" x="220" y="790"/>
+        <position unit="do_nothing" x="-605" y="147"/>
     </positions>
     <zoom level="0.6"/> 
 </pipeline>
