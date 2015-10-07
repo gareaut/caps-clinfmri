@@ -69,16 +69,17 @@
         <link source="image_manager.repetition_time" destination="fsl_slice_timing.time_repetition"/>
         <link source="fsl_save_timings.timings_file" destination="fsl_slice_timing.custom_timings"/>
         <!-- OUTPUTS -->
-        <link source="spm_output_adapter.element" destination="corrected_fmri_file"/>
+        <link source="spm_output_adapter.element" destination="corrected_fmri_file" />
         <link source="image_manager.acquisition_time" destination="acquisition_time"/>
         <link source="image_manager.slice_orders" destination="slice_orders"/>
         <link source="image_manager.number_of_slices" destination="number_of_slices"/>
         <link source="image_manager.repetition_time" destination="repetition_time"/>
-        <link source="fsl_slice_timing._slice_time_corrected_file" destination="corrected_fmri_file"/>
+        <link source="fsl_slice_timing._slice_time_corrected_file" destination="corrected_fmri_file" />
+
     </links>
     <positions>
-        <position unit="inputs" x="-636" y="192"/>
-        <position unit="image_manager" x="-238" y="217"/>
+        <position unit="inputs" x="-647" y="193"/>
+        <position unit="image_manager" x="-257" y="193"/>
         <position unit="spm_input_adapter" x="2" y="-82"/>
         <position unit="spm_output_adapter" x="434" y="242"/>
         <position unit="fsl_save_timings" x="43" y="448"/>

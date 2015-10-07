@@ -14,7 +14,7 @@ import nibabel
 
 
 def time_serie_metadata(fmri_file, force_repetition_time=0,
-                        force_slice_orders=[]):
+                        force_slice_orders=[], slice_dim=2):
     """ Information of the time serie formatted accordingly to the selected
     software.
 
@@ -25,6 +25,8 @@ def time_serie_metadata(fmri_file, force_repetition_time=0,
             sequence repetition time."/>
         <input name="force_slice_orders" type="List" content="Int"
             description="the sequence slice orders."/>
+        <input name="slice_dim" type="Int" description="dimensions of 
+            a slice"/>
         <output name="repetition_time" type="Float" description="the sequence
             repetition time."/>
         <output name="slice_orders" type="List" content="Int" description="the
@@ -38,10 +40,17 @@ def time_serie_metadata(fmri_file, force_repetition_time=0,
     # Load the image and get the corresponding header
     nii = nibabel.load(fmri_file)
     header = nii.get_header()
+    
+    print force_slice_orders
+    print force_repetition_time
 
     # Get image information from header if necessary
     if not force_repetition_time or not force_slice_orders:
-        number_of_slices = header.get_n_slices()
+        try:
+            number_of_slices = header.get_n_slices()
+        except:
+            number_of_slices = nii.shape[-2]
+        header.set_dim_info(slice=slice_dim)
         slice_duration = header.get_slice_duration()
         slice_times = numpy.asarray(header.get_slice_times())
     else:

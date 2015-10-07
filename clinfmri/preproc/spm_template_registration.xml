@@ -16,6 +16,12 @@
         <unit name="spm_input_adapter_1">
             <module>mmutils.adapters.io.element_to_list</module>
         </unit>
+        <unit name="do_nothing_2">
+            <module>mmutils.adapters.io.noprocess_switch</module>
+        </unit>
+        <unit name="do_nothing_3">
+            <module>mmutils.adapters.io.noprocess_switch</module>
+        </unit>
         <unit name="spm_output_adapter_1">
             <module>mmutils.adapters.io.list_to_element</module>
         </unit>
@@ -39,15 +45,15 @@
             <set name="write_voxel_sizes" value="[3., 3., 3.]"/>
             <set name="bounding_box" value="[[-78, -112, -50], [78, 76, 85]]"/>
             <set name="write_interp" value="1"/>
-            <set name="jobtype" value="'write'"/>
+            <set name="jobtype" value="'estwrite'"/>
             <set name="out_prefix" value="'we'"/>
-            <set name="DTC_period_cutoff" value="25"/>
-            <set name="affine_regularization__type" value="'mni'"/>
+            <set name="DCT_period_cutoff" value="25"/>
+            <set name="affine_regularization_type" value="'mni'"/>
             <set name="template_image_smoothing" value="0."/>
             <set name="source_image_smoothing" value="8."/>
             <set name="nonlinear_iterations" value="16"/>
             <set name="nonlinear_regularization" value="1"/>
-            <set name="write_presereve" value="False"/>
+            <set name="write_preserve" value="False"/>
             <set name="output_directory" value="Undefined"/>
             <set name="parameter_file" value="Undefined"/>
             <set name="source" value="Undefined"/>
@@ -61,24 +67,31 @@
         <switch name="template_type">
             <path name="4D">
                 <unit name="do_nothing"/>
+                <unit name="do_nothing_2"/>
+                <unit name="do_nothing_3"/>
             </path>
             <path name="3D">
                 <unit name="ungzip_templateadapter"/>
                 <unit name="ungzip_structadapter"/>
                 <unit name="spm_normalize"/>
+                <unit name="spm_input_adapter_1"/>
+                <unit name="spm_output_adapter_1"/>
             </path>
         </switch>
     </units>
     <links>
         <!-- ADAPTERS -->
         <link source="ungzip_funcadapter.ungzipfname" destination="spm_input_adapter_1.element"/>
+        <link source="ungzip_funcadapter.ungzipfname" destination="do_nothing_2.input_value"/>
         <link source="spm_funcnormalize._normalized_files" destination="spm_output_adapter_1.listobj"/>
-        <link source="templace" destination="do_nothing.input_value"/>
+        <link source="template_file" destination="do_nothing.input_value"/>
         <link source="do_nothing.output_value" destination="spm_funcnormalize.template"/>
+        <link source="spm_funcnormalize._normalized_source" destination="do_nothing_3.input_value"/>
         <!-- SPM -->
         <link source="ungzip_templateadapter.ungzipfname" destination="spm_normalize.template"/>
         <link source="ungzip_structadapter.ungzipfname" destination="spm_normalize.source"/>
         <link source="spm_input_adapter_1.adaptedelement" destination="spm_funcnormalize.apply_to_files"/>
+        <link source="do_nothing_2.output_value" destination="spm_funcnormalize.source"/>
         <link source="spm_normalize._normalization_parameters" destination="spm_funcnormalize.parameter_file"/>
         <!-- INPUTS -->
         <link source="fmri_file" destination="ungzip_funcadapter.fname"/>
@@ -88,8 +101,9 @@
         <link source="func_voxel_sizes" destination="spm_funcnormalize.write_voxel_sizes"/>
         <!-- OUTPUTS -->
         <link source="spm_normalize._normalization_parameters" destination="normalization_parameters"/>
-        <link source="spm_normalize._normalized_source" destination="normalized_struct_file"/>
         <link source="spm_output_adapter_1.element" destination="normalized_fmri_file"/>
+        <link source="do_nothing_3.output_value" destination="normalized_fmri_file"/>
+        <link source="spm_normalize._normalized_source" destination="normalized_struct_file"/>
     </links>
     <positions>
         <position unit="inputs" x="-1056" y="274"/>
@@ -100,8 +114,10 @@
         <position unit="ungzip_templateadapter" x="-1092" y="813"/>
         <position unit="spm_normalize" x="-639" y="488"/>
         <position unit="spm_funcnormalize" x="-141" y="-229"/>
-        <position unit="outputs" x="220" y="790"/>
+        <position unit="outputs" x="377" y="1138"/>
         <position unit="do_nothing" x="-605" y="147"/>
+        <position unit="do_nothing_2" x="-362" y="72"/>
+        <position unit="do_nothing_3" x="110" y="834"/>
     </positions>
-    <zoom level="0.6"/> 
+    <zoom level="0.5"/> 
 </pipeline>

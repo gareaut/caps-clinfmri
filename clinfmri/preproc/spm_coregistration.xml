@@ -45,7 +45,7 @@
         <link source="fwhm" destination="spm_coregistration.fwhm"/>
         <link source="jobtype" destination="spm_coregistration.jobtype"/>
         <!-- OUTPUTS -->
-        <link source="spm_output_adapter.element" destination="coregistered_fmri_file"/>
+        <link source="spm_output_adapter.element" destination="coregistered_file"/>
     </links>
     <positions>
         <position unit="inputs" x="-579" y="88"/>

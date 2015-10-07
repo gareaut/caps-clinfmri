@@ -30,9 +30,9 @@
     </links>
     <positions>
         <position unit="inputs" x="-372" y="25"/>
-        <position unit="reorient" x="-213" y="132"/>
-        <position unit="outputs" x="165" y="156"/>
-        <position unit="do_nothing" x="-113" y="232"/>
+        <position unit="reorient" x="-169" y="-2"/>
+        <position unit="outputs" x="108" y="131"/>
+        <position unit="do_nothing" x="-176" y="173"/>
     </positions>
-    <scale factor="0.7"/> 
+    <zoom level="0.7"/> 
 </pipeline>

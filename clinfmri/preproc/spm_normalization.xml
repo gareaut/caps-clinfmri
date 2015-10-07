@@ -13,11 +13,11 @@
             <module>clinfmri.quality_control.spm_overlay.xml</module>
         </unit>
         <switch name="select_registration">
-            <path name="tpm">
-                <unit name="tpm_registration"/>
-            </path>
             <path name="template">
                 <unit name="template_registration"/>
+            </path>
+            <path name="tpm">
+                <unit name="tpm_registration"/>
             </path>
         </switch>
     </units>
@@ -40,13 +40,13 @@
         <link source="func_voxel_sizes" destination="template_registration.func_voxel_sizes"/>
         <link source="template_type" destination="template_registration.template_type"/>
         <!-- OUTPUTS -->
+        <link source="template_registration.normalization_parameters" destination="normalization_parameters"/>
         <link source="tpm_registration.normalization_parameters" destination="normalization_parameters"/>
+        <link source="template_registration.normalized_struct_file" destination="normalized_struct_file"/>
         <link source="tpm_registration.normalized_struct_file" destination="normalized_struct_file"/>
+        <link source="template_registration.normalized_fmri_file" destination="normalized_fmri_file"/>
         <link source="tpm_registration.normalized_fmri_file" destination="normalized_fmri_file"/>
         <link source="overlay.edges_file" destination="qc_edges_file"/>
-        <link source="template_registration.normalization_parameters" destination="normalization_parameters"/>
-        <link source="template_registration.normalized_struct_file" destination="normalized_struct_file"/>
-        <link source="template_registration.normalized_fmri_file" destination="normalized_fmri_file"/>
     </links>
     <positions>
         <position unit="inputs" x="-435" y="8"/>

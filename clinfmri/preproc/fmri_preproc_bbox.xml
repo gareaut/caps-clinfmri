@@ -48,19 +48,19 @@
     <links>
         <link source="reorientfunc.reoriented_file" destination="register.input_file"/>
         <link source="reorientstruct.reoriented_file" destination="coregister.moving_image"/>
-        <link source="do_reorientation" destination="reorientstruct.do_reorientation"/>
         <link source="register.registered_file" destination="slicer.fmri_file"/>
         <link source="slicer.corrected_fmri_file" destination="realign.fmri_file"/>
         <link source="realign.reference_mean_file" destination="coregister.reference_image"/>
         <link source="realign.realigned_fmri_header_modified_file" destination="normalize.fmri_file"/>
         <link source="coregister.coregistered_fmri_file" destination="normalize.coregistered_struct_file"/>
         <link source="normalize.normalized_fmri_file" destination="smoothing.image_file"/>
+        <!-- INPUTS -->
         <link source="ref_slice" destination="slicer.ref_slice"/>
         <link source="wrap" destination="realign.wrap"/>
         <link source="write_wrap" destination="realign.write_wrap"/>
         <link source="write_which" destination="realign.write_which"/>
-        <!-- INPUTS -->
         <link source="do_reorientation" destination="reorientfunc.do_reorientation"/>
+        <link source="do_reorientation" destination="reorientstruct.do_reorientation"/>
         <link source="do_registration" destination="register.do_registration"/>
         <link source="select_slicer" destination="slicer.select_slicer"/>
         <link source="force_repetition_time" destination="slicer.force_repetition_time"/>
