@@ -8,31 +8,17 @@
             <set name="prefix" value="'swap'"/>
             <set name="output_directory" value="Undefined"/>
         </unit>
-        <unit name="do_nothing">
-            <module>mmutils.adapters.io.noprocess_switch</module>
-        </unit>
-        <switch name="do_reorientation">
-            <path name="no">
-                <unit name="do_nothing"/>
-            </path>
-            <path name="yes">
-                <unit name="reorient"/>
-            </path>
-        </switch>
     </units>
     <links>
         <!-- INPUTS -->
         <link source="input_file" destination="reorient.in_file"/>
-        <link source="input_file" destination="do_nothing.input_value"/>
         <!-- OUTPUTS -->
-        <link source="do_nothing.output_value" destination="reoriented_file"/>
         <link source="reorient.out_file" destination="reoriented_file"/>
     </links>
     <positions>
         <position unit="inputs" x="-372" y="25"/>
         <position unit="reorient" x="-169" y="-2"/>
         <position unit="outputs" x="108" y="131"/>
-        <position unit="do_nothing" x="-176" y="173"/>
     </positions>
-    <zoom level="0.7"/> 
+    <zoom level="1"/> 
 </pipeline>

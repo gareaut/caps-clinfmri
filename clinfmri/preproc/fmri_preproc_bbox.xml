@@ -44,6 +44,22 @@
         <unit name="structural_segmentation">
             <module>clinfmri.utils.segmentation.xml</module>
         </unit>
+        <switch name="reorient_and_register">
+            <path name="do_nothing">
+            </path>
+            <path name="reorient_and_register">
+                <unit name="reorientfunc"/>
+                <unit name="reorientstruct"/>
+                <unit name="register"/>
+            </path>
+            <path name="reorient_only">
+                <unit name="reorientfunc"/>
+                <unit name="reorientstruct"/>
+            </path>
+            <path name="register_only">
+                <unit name="register"/>
+            </path>
+        </switch>
     </units>
     <links>
         <link source="reorientfunc.reoriented_file" destination="register.input_file"/>
@@ -52,21 +68,22 @@
         <link source="slicer.corrected_fmri_file" destination="realign.fmri_file"/>
         <link source="realign.reference_mean_file" destination="coregister.reference_image"/>
         <link source="realign.realigned_fmri_header_modified_file" destination="normalize.fmri_file"/>
-        <link source="coregister.coregistered_fmri_file" destination="normalize.coregistered_struct_file"/>
+        <link source="coregister.coregistered_file" destination="normalize.coregistered_struct_file"/>
         <link source="normalize.normalized_fmri_file" destination="smoothing.image_file"/>
         <!-- INPUTS -->
         <link source="ref_slice" destination="slicer.ref_slice"/>
         <link source="wrap" destination="realign.wrap"/>
         <link source="write_wrap" destination="realign.write_wrap"/>
         <link source="write_which" destination="realign.write_which"/>
-        <link source="do_reorientation" destination="reorientfunc.do_reorientation"/>
-        <link source="do_reorientation" destination="reorientstruct.do_reorientation"/>
-        <link source="do_registration" destination="register.do_registration"/>
         <link source="select_slicer" destination="slicer.select_slicer"/>
         <link source="force_repetition_time" destination="slicer.force_repetition_time"/>
         <link source="force_slice_order" destination="slicer.force_slice_orders"/>
         <link source="fmri_file" destination="reorientfunc.input_file"/>
+        <link source="fmri_file" destination="register.input_file"/>
+        <link source="fmri_file" destination="slicer.fmri_file"/>
+        <link source="reorientfunc.reoriented_file" destination="slicer.fmri_file"/>
         <link source="structural_file" destination="reorientstruct.input_file"/>
+        <link source="structural_file" destination="coregister.moving_image"/>
         <link source="coreg_fwhm" destination="coregister.fwhm"/>
         <link source="realign_register_to_mean" destination="realign.register_to_mean"/>
         <link source="mvt_thr" destination="realign.mvt_thr"/>

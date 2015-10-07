@@ -16,12 +16,6 @@
         <unit name="spm_input_adapter_1">
             <module>mmutils.adapters.io.element_to_list</module>
         </unit>
-        <unit name="do_nothing_2">
-            <module>mmutils.adapters.io.noprocess_switch</module>
-        </unit>
-        <unit name="do_nothing_3">
-            <module>mmutils.adapters.io.noprocess_switch</module>
-        </unit>
         <unit name="spm_output_adapter_1">
             <module>mmutils.adapters.io.list_to_element</module>
         </unit>
@@ -61,14 +55,8 @@
             <set name="template" value="Undefined"/>
             <set name="write_wrap" value="[0, 1, 0]"/>
         </unit>
-        <unit name="do_nothing">
-            <module>mmutils.adapters.io.noprocess_switch</module>
-        </unit>
         <switch name="template_type">
             <path name="4D">
-                <unit name="do_nothing"/>
-                <unit name="do_nothing_2"/>
-                <unit name="do_nothing_3"/>
             </path>
             <path name="3D">
                 <unit name="ungzip_templateadapter"/>
@@ -82,16 +70,13 @@
     <links>
         <!-- ADAPTERS -->
         <link source="ungzip_funcadapter.ungzipfname" destination="spm_input_adapter_1.element"/>
-        <link source="ungzip_funcadapter.ungzipfname" destination="do_nothing_2.input_value"/>
         <link source="spm_funcnormalize._normalized_files" destination="spm_output_adapter_1.listobj"/>
-        <link source="template_file" destination="do_nothing.input_value"/>
-        <link source="do_nothing.output_value" destination="spm_funcnormalize.template"/>
-        <link source="spm_funcnormalize._normalized_source" destination="do_nothing_3.input_value"/>
         <!-- SPM -->
         <link source="ungzip_templateadapter.ungzipfname" destination="spm_normalize.template"/>
+        <link source="template_file" destination="spm_funcnormalize.template"/>
         <link source="ungzip_structadapter.ungzipfname" destination="spm_normalize.source"/>
+        <link source="ungzip_funcadapter.ungzipfname" destination="spm_funcnormalize.source"/>
         <link source="spm_input_adapter_1.adaptedelement" destination="spm_funcnormalize.apply_to_files"/>
-        <link source="do_nothing_2.output_value" destination="spm_funcnormalize.source"/>
         <link source="spm_normalize._normalization_parameters" destination="spm_funcnormalize.parameter_file"/>
         <!-- INPUTS -->
         <link source="fmri_file" destination="ungzip_funcadapter.fname"/>
@@ -102,7 +87,7 @@
         <!-- OUTPUTS -->
         <link source="spm_normalize._normalization_parameters" destination="normalization_parameters"/>
         <link source="spm_output_adapter_1.element" destination="normalized_fmri_file"/>
-        <link source="do_nothing_3.output_value" destination="normalized_fmri_file"/>
+        <link source="spm_funcnormalize._normalized_source" destination="normalized_fmri_file"/>
         <link source="spm_normalize._normalized_source" destination="normalized_struct_file"/>
     </links>
     <positions>
@@ -115,9 +100,6 @@
         <position unit="spm_normalize" x="-639" y="488"/>
         <position unit="spm_funcnormalize" x="-141" y="-229"/>
         <position unit="outputs" x="377" y="1138"/>
-        <position unit="do_nothing" x="-605" y="147"/>
-        <position unit="do_nothing_2" x="-362" y="72"/>
-        <position unit="do_nothing_3" x="110" y="834"/>
     </positions>
     <zoom level="0.5"/> 
 </pipeline>

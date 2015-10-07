@@ -12,31 +12,17 @@
             <set name="output_directory" value="Undefined"/>
             <set name="transformation_file" value="None"/>
         </unit>
-        <unit name="do_nothing">
-            <module>mmutils.adapters.io.noprocess_switch</module>
-        </unit>
-        <switch name="do_registration">
-            <path name="no">
-                <unit name="do_nothing"/>
-            </path>
-            <path name="yes">
-                <unit name="register"/>
-            </path>
-        </switch>
     </units>
     <links>
         <!-- INPUTS -->
         <link source="input_file" destination="register.in_file"/>
-        <link source="input_file" destination="do_nothing.input_value"/>
         <!-- OUTPUTS -->
-        <link source="do_nothing.output_value" destination="registered_file"/>
         <link source="register.register_file" destination="registered_file"/>
     </links>
     <positions>
         <position unit="inputs" x="-372" y="25"/>
         <position unit="register" x="-179" y="47"/>
-        <position unit="do_nothing" x="-181" y="-48"/>
         <position unit="outputs" x="58" y="60"/>
     </positions>
-    <scale factor="0.7"/> 
+    <scale factor="1"/> 
 </pipeline>
