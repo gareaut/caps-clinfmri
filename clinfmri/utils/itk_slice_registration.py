@@ -19,7 +19,7 @@ import numpy
 import SimpleITK as sitk
 
 # MONKEYFMRI import
-from pclinfmri.utils.runtime import progress_bar
+from clinfmri.utils.runtime import progress_bar
 
 
 def command_iteration(method):
@@ -67,11 +67,7 @@ def slice_registration(in_file, slice_shift=5, registration_prefix="w",
     >>> import pclinfmri.utils.registration import slice_registration
     >>> reg = slice_registration('image.nii', 5, 'w', 'rp', None, 1)
 
-    <process>
-        <return name="register_file" type="File" desc="the output temporal
-            slice registered volume."/>
-        <return name="transformation_file" type="File" desc="the computed
-            slice to slice 2d affine transformation parameters."/>
+    <unit>
         <input name="in_file" type="File" desc="the input 4D EPI volume."/>
         <input name="slice_shift" type="Int" desc="slice to exclude
             (+slice_shift, dim - slice_shift)."/>
@@ -81,7 +77,11 @@ def slice_registration(in_file, slice_shift=5, registration_prefix="w",
             the output parameters file."/>
         <input name="output_directory" type="Directory" desc="the output
             directory where the rectified image is saved."/>
-    </process>
+        <output name="register_file" type="File" desc="the output temporal
+            slice registered volume."/>
+        <output name="transformation_file" type="File" desc="the computed
+            slice to slice 2d affine transformation parameters."/>
+    </unit>
     """
     # Check the input image exists on the file system
     if not os.path.isfile(in_file):
@@ -177,7 +177,7 @@ def slice_registration(in_file, slice_shift=5, registration_prefix="w",
 
     # Save the registered image and associated transformations
     fsplit = os.path.split(in_file)
-    register_file = os.path.join(output_directory, registration_prefix + 
+    register_file = os.path.join(output_directory, registration_prefix +
                                  fsplit[1])
     transfromation_file = os.path.join(output_directory, transformation_prefix +
                                        fsplit[1].split(".")[0] + ".json")

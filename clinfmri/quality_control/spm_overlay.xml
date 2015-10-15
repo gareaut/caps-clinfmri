@@ -3,63 +3,61 @@
         Use spm to reslice the template image and then control the registration
         accuracy.
     </docstring>
-    <processes>
-        <standard name="spm_input_adapter">
-            <module>pclinfmri.adapters.io.element_to_list</module>
-        </standard>
-        <standard name="spm_output_adapter">
-            <module>pclinfmri.adapters.io.list_to_element</module>
-        </standard>
-        <standard name="ungzip_adapter_1">
-            <module>pclinfmri.adapters.io.ungzip_file</module>
-            <force name="prefix" value="u"/>
-            <force name="output_directory" value="Undefined"/>
-        </standard>
-        <standard name="ungzip_adapter_2">
-            <module>pclinfmri.adapters.io.ungzip_file</module>
-            <force name="prefix" value="u"/>
-            <force name="output_directory" value="Undefined"/>
-        </standard>
-        <standard name="spm_reslice">
-            <module>pclinfmri.nipype_interfaces.spm.ResliceToReference</module>
-            <force name="voxel_sizes" value="[1., 1., 1.]"/>
-            <force name="bounding_box" value="[[-78, -112, -50], [79, 77, 86]]"/>
-            <force name="interpolation" value="1"/>
-            <force name="output_directory" value="Undefined"/>
-        </standard>
-        <standard name="overlay">
-            <module>pclinfmri.quality_control.image_overlay.edges_overlay</module>
-            <force name="prefix" value="e"/>
-            <force name="output_directory" value="Undefined"/>
-        </standard>
-    </processes>
+    <units>
+        <unit name="spm_input_adapter">
+            <module>mmutils.adapters.io.element_to_list</module>
+        </unit>
+        <unit name="spm_output_adapter">
+            <module>mmutils.adapters.io.list_to_element</module>
+        </unit>
+        <unit name="ungzip_adapter_1">
+            <module>mmutils.adapters.io.ungzip_file</module>
+            <set name="prefix" value="'u'"/>
+            <set name="output_directory" value="Undefined"/>
+        </unit>
+        <unit name="ungzip_adapter_2">
+            <module>mmutils.adapters.io.ungzip_file</module>
+            <set name="prefix" value="'u'"/>
+            <set name="output_directory" value="Undefined"/>
+        </unit>
+        <unit name="spm_reslice">
+            <module>clinfmri.nipype_interfaces.spm.ResliceToReference</module>
+            <set name="voxel_sizes" value="[1., 1., 1.]"/>
+            <set name="bounding_box" value="[[-78, -112, -50], [79, 77, 86]]"/>
+            <set name="interpolation" value="1"/>
+            <set name="output_directory" value="Undefined"/>
+        </unit>
+        <unit name="overlay">
+            <module>clinfmri.quality_control.image_overlay.edges_overlay</module>
+            <set name="prefix" value="'e'"/>
+            <set name="output_directory" value="Undefined"/>
+        </unit>
+    </units>
     <links>
         <!-- ADAPTERS -->
-        <link src="ungzip_adapter_2.ungzipfname" dest="spm_input_adapter.element"/>
-        <link src="spm_reslice._out_files" dest="spm_output_adapter.listobj"/>
+        <link source="ungzip_adapter_2.ungzipfname" destination="spm_input_adapter.element"/>
+        <link source="spm_reslice._out_files" destination="spm_output_adapter.listobj"/>
         <!-- SPM -->
-        <link src="spm_input_adapter.adaptedelement" dest="spm_reslice.in_files"/>
+        <link source="spm_input_adapter.adaptedelement" destination="spm_reslice.in_files"/>
         <!-- OVERLAY -->
-        <link src="ungzip_adapter_1.ungzipfname" dest="overlay.input_file"/>
-        <link src="spm_output_adapter.element" dest="overlay.template_file"/>
+        <link source="ungzip_adapter_1.ungzipfname" destination="overlay.input_file"/>
+        <link source="spm_output_adapter.element" destination="overlay.template_file"/>
+        <!-- INPUTS -->
+        <link source="input_file" destination="ungzip_adapter_1.fname"/>
+        <link source="template_file" destination="ungzip_adapter_2.fname"/>
+        <link source="voxel_sizes" destination="spm_reslice.voxel_sizes"/>
+        <!-- OUTPUTS -->
+        <link source="overlay.edges_file" destination="edges_file"/>
     </links>
-    <inputs>
-        <input name="input_file" dest="ungzip_adapter_1.fname"/>
-        <input name="template_file" dest="ungzip_adapter_2.fname"/>
-        <input name="voxel_sizes" dest="spm_reslice.voxel_sizes"/>
-    </inputs>
-    <outputs>
-        <output name="edges_file" src="overlay.edges_file"/>
-    </outputs>
     <positions>
-        <position process="inputs" x="-553" y="180"/>
-        <position process="spm_input_adapter" x="-128" y="5"/>
-        <position process="spm_output_adapter" x="284" y="255"/>
-        <position process="ungzip_adapter_1" x="-329" y="430"/>
-        <position process="ungzip_adapter_2" x="-326" y="-70"/>
-        <position process="spm_reslice" x="92" y="-45"/>
-        <position process="overlay" x="392" y="430"/>
-        <position process="outputs" x="571" y="531"/>
+        <position unit="inputs" x="-553" y="180"/>
+        <position unit="spm_input_adapter" x="-128" y="5"/>
+        <position unit="spm_output_adapter" x="284" y="255"/>
+        <position unit="ungzip_adapter_1" x="-329" y="430"/>
+        <position unit="ungzip_adapter_2" x="-326" y="-70"/>
+        <position unit="spm_reslice" x="92" y="-45"/>
+        <position unit="overlay" x="392" y="430"/>
+        <position unit="outputs" x="571" y="531"/>
     </positions>
-    <scale factor="0.4"/> 
+    <zoom level="0.6"/> 
 </pipeline>

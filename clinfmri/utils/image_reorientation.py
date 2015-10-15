@@ -81,8 +81,7 @@ def reorient_image(in_file, axes="RAS", prefix="swap", output_directory=None):
     >>> from pclinfmri.utils.reorientation import reorient_image
     >>> rectified_image = reorient_image('image.nii', 'RAS', 's', None)
 
-    <process>
-        <return name="out_file" type="File" desc="the rectified image."/>
+    <unit>
         <input name="in_file" type="File" desc="the input image."/>
         <input name="axes" type="String" desc="orientation of the original
             axes X, Y, and Z specified with the following convention:
@@ -91,7 +90,8 @@ def reorient_image(in_file, axes="RAS", prefix="swap", output_directory=None):
             image."/>
         <input name="output_directory" type="Directory" desc="the output
             directory where the rectified image is saved."/>
-    </process>
+        <output name="out_file" type="File" desc="the rectified image."/>
+    </unit>
     """
     # Check the input image exists on the file system
     if not os.path.isfile(in_file):

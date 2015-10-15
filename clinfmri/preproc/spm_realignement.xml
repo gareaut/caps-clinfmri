@@ -4,86 +4,88 @@
 
         Estimating within modality rigid body alignment.
     </docstring>
-    <processes>
-        <standard name="spm_input_adapter">
-            <module>pclinfmri.adapters.io.element_to_list</module>
-        </standard>
-        <standard name="spm_output_adapter_1">
-            <module>pclinfmri.adapters.io.list_to_element</module>
-        </standard>
-        <standard name="spm_output_adapter_2">
-            <module>pclinfmri.adapters.io.list_to_element</module>
-        </standard>
-        <standard name="spm_output_adapter_3">
-            <module>pclinfmri.adapters.io.list_to_element</module>
-            <force name="element" value="Undefined"/>
-        </standard>
-        <standard name="ungzip_adapter">
-            <module>pclinfmri.adapters.io.ungzip_file</module>
-            <force name="prefix" value="u"/>
-            <force name="output_directory" value="Undefined"/>
-        </standard>
-        <standard name="spm_realignment">
+    <units>
+        <unit name="spm_input_adapter">
+            <module>mmutils.adapters.io.element_to_list</module>
+        </unit>
+        <unit name="spm_output_adapter_1">
+            <module>mmutils.adapters.io.list_to_element</module>
+        </unit>
+        <unit name="spm_output_adapter_2">
+            <module>mmutils.adapters.io.list_to_element</module>
+        </unit>
+        <unit name="spm_output_adapter_3">
+            <module>mmutils.adapters.io.list_to_element</module>
+            <set name="element" value="Undefined"/>
+        </unit>
+        <unit name="ungzip_adapter">
+            <module>mmutils.adapters.io.ungzip_file</module>
+            <set name="prefix" value="'u'"/>
+            <set name="output_directory" value="Undefined"/>
+        </unit>
+        <unit name="spm_realignment">
             <module>nipype.interfaces.spm.Realign</module>
-            <force name="jobtype" value="estwrite"/>
-            <force name="quality" value="0.9"/>
-            <force name="separation" value="4"/>
-            <force name="fwhm" value="5"/>
-            <force name="interp" value="2"/>
-            <force name="wrap" value="[0, 0, 0]"/>
-            <force name="write_which" value="[2, 1]"/>
-            <force name="write_interp" value="4"/>
-            <force name="write_wrap" value="[0, 0, 0]"/>
-            <force name="write_mask" value="True"/>
-            <force name="out_prefix" value="r"/>
-            <force name="output_directory" value="Undefined"/>
-        </standard>
-        <standard name="mq" processing="False">
-            <module>pclinfmri.quality_control.movement_quantity.time_serie_mq</module>
-            <force name="package" value="SPM"/>
-            <force name="time_axis" value="-1"/>
-            <force name="slice_axis" value="-2"/>
-            <force name="mvt_thr" value="1.5"/>
-            <force name="rot_thr" value="0.5"/>
-            <force name="output_directory" value="Undefined"/>
-        </standard>
-    </processes>
+            <set name="jobtype" value="'estwrite'"/>
+            <set name="quality" value="1.0"/>
+            <set name="register_to_mean" value="False" />
+            <set name="separation" value="4"/>
+            <set name="fwhm" value="5"/>
+            <set name="interp" value="2"/>
+            <set name="wrap" value="[0, 0, 0]"/>
+            <set name="write_which" value="[2, 1]"/>
+            <set name="write_interp" value="4"/>
+            <set name="write_wrap" value="[0, 0, 0]"/>
+            <set name="write_mask" value="True"/>
+            <set name="out_prefix" value="'r'"/>
+            <set name="output_directory" value="Undefined"/>
+        </unit>
+        <unit name="mq">
+            <module>clinfmri.quality_control.movement_quantity.time_serie_mq</module>
+            <set name="package" value="'SPM'"/>
+            <set name="time_axis" value="-1"/>
+            <set name="slice_axis" value="-2"/>
+            <set name="mvt_thr" value="1.5"/>
+            <set name="rot_thr" value="0.5"/>
+            <set name="output_directory" value="Undefined"/>
+        </unit>
+    </units>
     <links>
         <!-- ADAPTERS -->
-        <link src="ungzip_adapter.ungzipfname" dest="spm_input_adapter.element"/>
-        <link src="spm_realignment._modified_in_files" dest="spm_output_adapter_1.listobj"/>
-        <link src="spm_realignment._realigned_files" dest="spm_output_adapter_2.listobj"/>
-        <link src="spm_realignment._realignment_parameters" dest="spm_output_adapter_3.listobj"/>
+        <link source="ungzip_adapter.ungzipfname" destination="spm_input_adapter.element"/>
+        <link source="spm_realignment._modified_in_files" destination="spm_output_adapter_1.listobj"/>
+        <link source="spm_realignment._realigned_files" destination="spm_output_adapter_2.listobj"/>
+        <link source="spm_realignment._realignment_parameters" destination="spm_output_adapter_3.listobj"/>
         <!-- SPM -->
-        <link src="spm_input_adapter.adaptedelement" dest="spm_realignment.in_files"/>
+        <link source="spm_input_adapter.adaptedelement" destination="spm_realignment.in_files"/>
         <!-- QC -->
-        <link src="spm_output_adapter_3.element" dest="mq.realignment_parameters"/>
-        <link src="fmri_file" dest="mq.image_file"/>
+        <link source="spm_output_adapter_3.element" destination="mq.realignment_parameters"/>
+        <!-- INPUTS -->
+        <link source="fmri_file" destination="mq.image_file"/>
+        <link source="fmri_file" destination="ungzip_adapter.fname"/>
+        <link source="register_to_mean" destination="spm_realignment.register_to_mean"/>
+        <link source="wrap" destination="spm_realignment.wrap"/>
+        <link source="write_wrap" destination="spm_realignment.write_wrap"/>
+        <link source="write_which" destination="spm_realignment.write_which"/>
+        <link source="mvt_thr" destination="mq.mvt_thr"/>
+        <link source="rot_thr" destination="mq.rot_thr"/>
+        <!-- OUTPUTS -->
+        <link source="spm_realignment._realignment_parameters" destination="realignment_parameters"/>
+        <link source="spm_realignment._mean_image" destination="reference_mean_file"/>
+        <link source="spm_output_adapter_1.element" destination="realigned_fmri_header_modified_file"/>
+        <link source="spm_output_adapter_2.element" destination="realigned_fmri_file"/>
+        <link source="mq.snap_mvt" destination="snap_mvt"/>
+        <link source="mq.displacement_file" destination="displacement_file"/>
     </links>
-    <inputs>
-        <input name="fmri_file" dest="ungzip_adapter.fname"/>
-        <input name="register_to_mean" dest="spm_realignment.register_to_mean"/>
-        <input name="mvt_thr" dest="mq.mvt_thr"/>
-        <input name="rot_thr" dest="mq.rot_thr"/>
-    </inputs>
-    <outputs>
-        <output name="realignment_parameters" src="spm_realignment._realignment_parameters"/>
-        <output name="reference_mean_file" src="spm_realignment._mean_image"/>
-        <output name="realigned_fmri_header_modified_file" src="spm_output_adapter_1.element"/>
-        <output name="realigned_fmri_file" src="spm_output_adapter_2.element"/>
-        <output name="snap_mvt" src="mq.snap_mvt"/>
-        <output name="displacement_file" src="mq.displacement_file"/>
-    </outputs>
     <positions>
-        <position process="inputs" x="-545" y="314"/>
-        <position process="spm_input_adapter" x="-211" y="-51"/>
-        <position process="spm_output_adapter_1" x="294" y="408"/>
-        <position process="spm_output_adapter_2" x="293" y="622"/>
-        <position process="spm_output_adapter_3" x="108" y="714"/>
-        <position process="ungzip_adapter" x="-389" y="-125"/>
-        <position process="spm_realignment" x="6" y="-101"/>
-        <position process="mq" x="296" y="816"/>
-        <position process="outputs" x="591" y="536"/>
+        <position unit="inputs" x="-545" y="314"/>
+        <position unit="spm_input_adapter" x="-211" y="-51"/>
+        <position unit="spm_output_adapter_1" x="294" y="408"/>
+        <position unit="spm_output_adapter_2" x="293" y="622"/>
+        <position unit="spm_output_adapter_3" x="108" y="714"/>
+        <position unit="ungzip_adapter" x="-389" y="-125"/>
+        <position unit="spm_realignment" x="6" y="-101"/>
+        <position unit="mq" x="296" y="816"/>
+        <position unit="outputs" x="591" y="536"/>
     </positions>
-    <scale factor="0.3"/> 
+    <zoom level="0.8"/> 
 </pipeline>

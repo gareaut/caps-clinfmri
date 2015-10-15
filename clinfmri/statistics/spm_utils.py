@@ -9,7 +9,6 @@
 
 # System modules
 import os
-import numpy
 import nibabel
 import scipy.io
 import matplotlib
@@ -23,21 +22,21 @@ import matplotlib.pyplot as plt
 def spm_save_design(spm_mat_file, output_directory):
     """ Create a snap with the design matrix values.
 
-    <process>
-        <return name="spm_design_snap" type="File" desc="A snapshot of the
-            design matrix." />
+    <unit>
         <input name="spm_mat_file" type="File" desc="The spm mat file
             containing the desing matrix." />
         <input name="output_directory" type="Directory" desc="The destination
             folder." />
-    </process>    
+        <output name="spm_design_snap" type="File" desc="A snapshot of the
+            design matrix." />
+    </unit>
     """
     # Get the design matrix
     spmmat = scipy.io.loadmat(spm_mat_file, struct_as_record=False)
     designmatrix = spmmat["SPM"][0][0].xX[0][0].X
 
     # Create a snapshot of the design matrix
-    fig = plt.figure()
+    plt.figure()
     ax = plt.subplot(1, 1, 1)
     ax.imshow(designmatrix, cmap="flag", aspect="auto", interpolation="none")
     plt.xlabel("parameters")
@@ -46,34 +45,36 @@ def spm_save_design(spm_mat_file, output_directory):
     spm_design_snap = os.path.join(output_directory, "spm_design.png")
     plt.savefig(spm_design_snap)
 
+    return spm_design_snap
+
 
 def spm_image_nii_encoding(con_images, spmT_images, ess_images, spmF_images,
                            contrasts, output_directory):
     """ Encode the output spm images in compress nifti format and rename files
     to include the contrast name.
 
-    <process>
-        <return name="nii_con_images" type="List_File" desc="Contrast images
-            from a t-contrast." />
-        <return name="nii_spmT_images" type="List_File" desc="Stat images from
-            a t-contrast." />
-        <return name="nii_ess_images" type="List_File" desc="Contrast images
-            from an F-contrast." />
-        <return name="nii_spmF_images" type="List_File" desc="Stat images from
-            an F-contrast." />
-        <input name="con_images" type="List_File" desc="Contrast images from
-            a t-contrast." />
-        <input name="spmT_images" type="List_File" desc="Stat images from a
-            t-contrast." />
-        <input name="ess_images" type="List_File" desc="Contrast images from
-            an F-contrast." />
-        <input name="spmF_images" type="List_File" desc="Stat images from an
-            F-contrast." />
+    <unit>
+        <input name="con_images" type="List" content="File"
+            desc="Contrast images from a t-contrast." />
+        <input name="spmT_images" type="List" content="File"
+            desc="Stat images from a t-contrast." />
+        <input name="ess_images" type="List" content="File"
+            desc="Contrast images from an F-contrast." />
+        <input name="spmF_images" type="List" content="File"
+            desc="Stat images from an F-contrast." />
         <input name="contrasts" type="Any" desc="Stat images from an
             F-contrast." />
         <input name="output_directory" type="Directory" desc="The destination
             folder." />
-    </process>
+        <output name="nii_con_images" type="List" content="File"
+            desc="Contrast images from a t-contrast." />
+        <output name="nii_spmT_images" type="List" content="File"
+            desc="Stat images from a t-contrast." />
+        <output name="nii_ess_images" type="List" content="File"
+            desc="Contrast images from an F-contrast." />
+        <output name="nii_spmF_images" type="List" content="File"
+            desc="Stat images from an F-contrast." />
+    </unit>
     """
     nii_con_images = []
     nii_spmT_images = []
@@ -98,5 +99,5 @@ def spm_image_nii_encoding(con_images, spmT_images, ess_images, spmF_images,
 
                 # Save destination path
                 nii_images.append(out)
-                
+
     return nii_con_images, nii_spmT_images, nii_ess_images, nii_spmF_images

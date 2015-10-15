@@ -2,60 +2,58 @@
     <docstring>
         SPM structural normalization to template.
     </docstring>
-    <processes>
-        <standard name="spm_input_adapter">
-            <module>pclinfmri.adapters.io.element_to_list</module>
-        </standard>
-        <standard name="spm_output_adapter_1">
-            <module>pclinfmri.adapters.io.list_to_element</module>
-        </standard>
-        <standard name="spm_output_adapter_2">
-            <module>pclinfmri.adapters.io.list_to_element</module>
-        </standard>
-        <standard name="ungzip_adapter">
-            <module>pclinfmri.adapters.io.ungzip_file</module>
-            <force name="prefix" value="u"/>
-            <force name="output_directory" value="Undefined"/>
-        </standard>
-        <standard name="tpm_adapter">
-            <module>pclinfmri.adapters.io.spm_tissue_probability_maps</module>
-        </standard>
-        <standard name="spm_newsegment">
+    <units>
+        <unit name="spm_input_adapter">
+            <module>mmutils.adapters.io.element_to_list</module>
+        </unit>
+        <unit name="spm_output_adapter_1">
+            <module>mmutils.adapters.io.list_to_element</module>
+        </unit>
+        <unit name="spm_output_adapter_2">
+            <module>mmutils.adapters.io.list_to_element</module>
+        </unit>
+        <unit name="ungzip_adapter">
+            <module>mmutils.adapters.io.ungzip_file</module>
+            <set name="prefix" value="'u'"/>
+            <set name="output_directory" value="Undefined"/>
+        </unit>
+        <unit name="tpm_adapter">
+            <module>mmutils.adapters.io.spm_tissue_probability_maps</module>
+        </unit>
+        <unit name="spm_newsegment">
             <module>nipype.interfaces.spm.NewSegment</module>
-            <force name="channel_files" copyfile="Temp"/>
-            <force name="channel_info" value="(0.0001, 60, (True, True))"/>
-            <force name="warping_regularization" value="4"/>
-            <force name="sampling_distance" value="3"/>
-            <force name="write_deformation_fields" value="[True, True]"/>
-            <force name="output_directory" value="Undefined"/>
-        </standard>
-    </processes>
+            <set name="channel_files" value="None" copyfile="Temp"/>
+            <set name="channel_info" value="(0.0001, 60, (True, True))"/>
+            <set name="warping_regularization" value="4"/>
+            <set name="sampling_distance" value="3"/>
+            <set name="write_deformation_fields" value="[True, True]"/>
+            <set name="output_directory" value="Undefined"/>
+        </unit>
+    </units>
     <links>
         <!-- ADAPTERS -->
-        <link src="ungzip_adapter.ungzipfname" dest="spm_input_adapter.element"/>
-        <link src="spm_newsegment._bias_corrected_images" dest="spm_output_adapter_1.listobj"/>
-        <link src="spm_newsegment._forward_deformation_field" dest="spm_output_adapter_2.listobj"/>
+        <link source="ungzip_adapter.ungzipfname" destination="spm_input_adapter.element"/>
+        <link source="spm_newsegment._bias_corrected_images" destination="spm_output_adapter_1.listobj"/>
+        <link source="spm_newsegment._forward_deformation_field" destination="spm_output_adapter_2.listobj"/>
         <!-- SPM -->
-        <link src="spm_input_adapter.adaptedelement" dest="spm_newsegment.channel_files"/>
-        <link src="tpm_adapter.tpm_struct" dest="spm_newsegment.tissues"/>
+        <link source="spm_input_adapter.adaptedelement" destination="spm_newsegment.channel_files"/>
+        <link source="tpm_adapter.tpm_struct" destination="spm_newsegment.tissues"/>
+        <!-- INPUTS -->
+        <link source="coregistered_struct_file" destination="ungzip_adapter.fname"/>
+        <!-- OUTPUTS -->
+        <link source="spm_output_adapter_1.element" destination="bias_corrected_file"/>
+        <link source="spm_output_adapter_2.element" destination="forward_deformation_field"/>
+        <link source="spm_newsegment._dartel_input_images" destination="dartel_input_file"/>
     </links>
-    <inputs>
-        <input name="coregistered_struct_file" dest="ungzip_adapter.fname"/>
-    </inputs>
-    <outputs>
-        <output name="bias_corrected_file" src="spm_output_adapter_1.element"/>
-        <output name="forward_deformation_field" src="spm_output_adapter_2.element"/>
-        <output name="dartel_input_file" src="spm_newsegment._dartel_input_images"/>
-    </outputs>
     <positions>
-        <position process="inputs" x="-626" y="252"/>
-        <position process="spm_input_adapter" x="-181" y="278"/>
-        <position process="spm_output_adapter_1" x="336" y="474"/>
-        <position process="spm_output_adapter_2" x="338" y="741"/>
-        <position process="ungzip_adapter" x="-361" y="201"/>
-        <position process="spm_newsegment" x="43" y="253"/>
-        <position process="tpm_adapter" x="-147" y="478"/>
-        <position process="outputs" x="558" y="584"/>
+        <position unit="inputs" x="-626" y="252"/>
+        <position unit="spm_input_adapter" x="-181" y="278"/>
+        <position unit="spm_output_adapter_1" x="336" y="474"/>
+        <position unit="spm_output_adapter_2" x="338" y="741"/>
+        <position unit="ungzip_adapter" x="-361" y="201"/>
+        <position unit="spm_newsegment" x="43" y="253"/>
+        <position unit="tpm_adapter" x="-147" y="478"/>
+        <position unit="outputs" x="558" y="584"/>
     </positions>
-    <scale factor="0.4"/> 
+    <zoom level="0.6"/> 
 </pipeline>

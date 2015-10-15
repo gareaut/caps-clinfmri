@@ -4,59 +4,58 @@
 
         Register a moving image to a reference one.
     </docstring>
-    <processes>
-        <standard name="spm_input_adapter">
-            <module>pclinfmri.adapters.io.element_to_list</module>
-        </standard>
-        <standard name="spm_output_adapter">
-            <module>pclinfmri.adapters.io.list_to_element</module>
-        </standard>
-        <standard name="ungzip_adapter_1">
-            <module>pclinfmri.adapters.io.ungzip_file</module>
-            <force name="prefix" value="u"/>
-            <force name="output_directory" value="Undefined"/>
-        </standard>
-        <standard name="ungzip_adapter_2">
-            <module>pclinfmri.adapters.io.ungzip_file</module>
-            <force name="prefix" value="u"/>
-            <force name="output_directory" value="Undefined"/>
-        </standard>
-        <standard name="spm_coregistration">
+    <units>
+        <unit name="spm_input_adapter">
+            <module>mmutils.adapters.io.element_to_list</module>
+        </unit>
+        <unit name="spm_output_adapter">
+            <module>mmutils.adapters.io.list_to_element</module>
+        </unit>
+        <unit name="ungzip_adapter_1">
+            <module>mmutils.adapters.io.ungzip_file</module>
+            <set name="prefix" value="'u'"/>
+            <set name="output_directory" value="Undefined"/>
+        </unit>
+        <unit name="ungzip_adapter_2">
+            <module>mmutils.adapters.io.ungzip_file</module>
+            <set name="prefix" value="'u'"/>
+            <set name="output_directory" value="Undefined"/>
+        </unit>
+        <unit name="spm_coregistration">
             <module>nipype.interfaces.spm.Coregister</module>
-            <force name="jobtype" value="estimate"/>
-            <force name="cost_function" value="nmi"/>
-            <force name="separation" value="[4, 2]"/>
-            <force name="tolerance" value="[0.02, 0.02, 0.02, 0.001, 0.001, 0.001, 0.01, 0.01, 0.01, 0.001, 0.001, 0.001]"/>
-            <force name="fwhm" value="[7, 7]"/>
-            <force name="out_prefix" value="c"/>
-            <force name="output_directory" value="Undefined"/>
-        </standard>
-    </processes>
+            <set name="jobtype" value="'estimate'"/>
+            <set name="cost_function" value="'nmi'"/>
+            <set name="separation" value="[4, 2]"/>
+            <set name="tolerance" value="[0.02, 0.02, 0.02, 0.001, 0.001, 0.001, 0.01, 0.01, 0.01, 0.001, 0.001, 0.001]"/>
+            <set name="fwhm" value="[7, 7]"/>
+            <set name="out_prefix" value="'c'"/>
+            <set name="output_directory" value="Undefined"/>
+        </unit>
+    </units>
     <links>
         <!-- ADAPTERS -->
-        <link src="ungzip_adapter_1.ungzipfname" dest="spm_input_adapter.element"/>
-        <link src="spm_coregistration._coregistered_source" dest="spm_output_adapter.listobj"/>
+        <link source="ungzip_adapter_1.ungzipfname" destination="spm_input_adapter.element"/>
+        <link source="spm_coregistration._coregistered_source" destination="spm_output_adapter.listobj"/>
         <!-- SPM -->
-        <link src="spm_input_adapter.adaptedelement" dest="spm_coregistration.source"/>
-        <link src="ungzip_adapter_2.ungzipfname" dest="spm_coregistration.target"/>
+        <link source="spm_input_adapter.adaptedelement" destination="spm_coregistration.source"/>
+        <link source="ungzip_adapter_2.ungzipfname" destination="spm_coregistration.target"/>
+        <!-- INPUTS -->
+        <link source="moving_image" destination="ungzip_adapter_1.fname"/>
+        <link source="reference_image" destination="ungzip_adapter_2.fname"/>
+        <link source="fwhm" destination="spm_coregistration.fwhm"/>
+        <link source="jobtype" destination="spm_coregistration.jobtype"/>
+        <!-- OUTPUTS -->
+        <link source="spm_output_adapter.element" destination="coregistered_file"/>
     </links>
-    <inputs>
-        <input name="moving_image" dest="ungzip_adapter_1.fname"/>
-        <input name="reference_image" dest="ungzip_adapter_2.fname"/>
-        <input name="fwhm" dest="spm_coregistration.fwhm"/>
-        <input name="jobtype" dest="spm_coregistration.jobtype"/>
-    </inputs>
-    <outputs>
-        <output name="coregistered_fmri_file" src="spm_output_adapter.element"/>
-    </outputs>
     <positions>
-        <position process="inputs" x="-553" y="180"/>
-        <position process="spm_input_adapter" x="-130" y="205"/>
-        <position process="spm_output_adapter" x="349" y="455"/>
-        <position process="ungzip_adapter_1" x="-331" y="-28"/>
-        <position process="ungzip_adapter_2" x="-328" y="283"/>
-        <position process="spm_coregistration" x="92" y="-45"/>
-        <position process="outputs" x="558" y="483"/>
+        <position unit="inputs" x="-579" y="88"/>
+        <position unit="spm_input_adapter" x="-130" y="205"/>
+        <position unit="spm_output_adapter" x="349" y="455"/>
+        <position unit="ungzip_adapter_1" x="-323" y="-113"/>
+        <position unit="ungzip_adapter_2" x="-340" y="179"/>
+        <position unit="spm_coregistration" x="92" y="-45"/>
+        <position unit="outputs" x="558" y="483"/>
     </positions>
-    <scale factor="0.4"/> 
+    <zoom level="0.8"/> 
 </pipeline>
+

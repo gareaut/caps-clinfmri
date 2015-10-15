@@ -8,40 +8,49 @@
 ##########################################################################
 
 # System import
-import sys
 import os
 import numpy
 import nibabel
 
 
-def time_serie_metadata(fmri_file, force_repetition_time=None,
-                        force_slice_orders=None):
+def time_serie_metadata(fmri_file, force_repetition_time=0,
+                        force_slice_orders=[], slice_dim=2):
     """ Information of the time serie formatted accordingly to the selected
     software.
 
-    <process>
-        <return name="repetition_time" type="Float"
-            desc="the sequence repetition time."/>
-        <return name="acquisition_time" type="Float"
-            desc="the sequence acquisition time."/>
-        <return name="slice_orders" type="List_Int"
-            desc="the sequence slice orders."/>
-        <return name="number_of_slices" type="Int"
-            desc="the number of slices in the sequence."/>
-        <input name="fmri_file" type="File" desc="the input FMRI image."/>
-        <input name="force_repetition_time" type="Float" desc="the sequence
+    <unit>
+        <input name="fmri_file" type="File" description="the input FMRI
+            image."/>
+        <input name="force_repetition_time" type="Float" description="the
+            sequence repetition time."/>
+        <input name="force_slice_orders" type="List" content="Int"
+            description="the sequence slice orders."/>
+        <input name="slice_dim" type="Int" description="dimensions of 
+            a slice"/>
+        <output name="repetition_time" type="Float" description="the sequence
             repetition time."/>
-        <input name="force_slice_orders" type="List_Int" desc="the sequence
-            slice orders."/>
-    </process>
+        <output name="slice_orders" type="List" content="Int" description="the
+            sequence slice orders."/>
+        <output name="number_of_slices" type="Int" description="the number of
+            slices in the sequence."/>
+        <output name="acquisition_time" type="Float" description="the sequence
+            acquisition time."/>
+    </unit>
     """
     # Load the image and get the corresponding header
     nii = nibabel.load(fmri_file)
     header = nii.get_header()
+    
+    print force_slice_orders
+    print force_repetition_time
 
     # Get image information from header if necessary
     if not force_repetition_time or not force_slice_orders:
-        number_of_slices = header.get_n_slices()
+        try:
+            number_of_slices = header.get_n_slices()
+        except:
+            number_of_slices = nii.shape[-2]
+        header.set_dim_info(slice=slice_dim)
         slice_duration = header.get_slice_duration()
         slice_times = numpy.asarray(header.get_slice_times())
     else:
@@ -61,7 +70,7 @@ def time_serie_metadata(fmri_file, force_repetition_time=None,
         slice_orders = force_slice_orders
 
     # Compute the acquisition time
-    acquisition_time = repetition_time * (1. - 1. / 40.)
+    acquisition_time = repetition_time * (1. - 1. / float(number_of_slices))
 
     return repetition_time, acquisition_time, slice_orders, number_of_slices
 
@@ -70,14 +79,14 @@ def fsl_save_custom_timings(slice_orders, output_directory):
     """ Save acquisition slice timings in order to perform the slice timing
     with FSL.
 
-    <process>
-        <return name="timings_file" type="File" desc="the acquisition slice
-            timings."/>
-        <input name="slice_orders" type="List_Int" desc="the sequence
-            slice orders."/>
-        <input name="output_directory" type="Directory" desc="the output
+    <unit>
+        <input name="slice_orders" type="List" content="Int" description="the
+            sequence slice orders."/>
+        <input name="output_directory" type="Directory" description="the output
             directory where fsl slice times are saved."/>
-    </process>  
+        <output name="timings_file" type="File" description="the acquisition
+            slice timings."/>
+    </unit>
     """
     # Check that the outdir is valid
     if not os.path.isdir(output_directory):
@@ -95,10 +104,3 @@ def fsl_save_custom_timings(slice_orders, output_directory):
     numpy.savetxt(timings_file, custom_timings)
 
     return timings_file
-
-
-
-
-
-
-

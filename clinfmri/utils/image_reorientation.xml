@@ -2,34 +2,23 @@
     <docstring>
         Rectify the orientation of an image.
     </docstring>
-    <processes>
-        <standard name="reorient">
-            <module>pclinfmri.utils.image_reorientation.reorient_image</module>
-            <force name="prefix" value="swap"/>
-            <force name="output_directory" value="Undefined"/>
-        </standard>
-        <switch name="do_reorientation">
-            <input>no</input>
-            <input>yes</input>
-            <output>reoriented_file</output>
-        </switch>
-    </processes>
+    <units>
+        <unit name="reorient">
+            <module>clinfmri.utils.image_reorientation.reorient_image</module>
+            <set name="prefix" value="'swap'"/>
+            <set name="output_directory" value="Undefined"/>
+        </unit>
+    </units>
     <links>
-        <!-- SWITCH -->
-        <link src="input_file" dest="do_reorientation.no_switch_reoriented_file"/>
-        <link src="reorient.out_file" dest="do_reorientation.yes_switch_reoriented_file"/>
+        <!-- INPUTS -->
+        <link source="input_file" destination="reorient.in_file"/>
+        <!-- OUTPUTS -->
+        <link source="reorient.out_file" destination="reoriented_file"/>
     </links>
-    <inputs>
-        <input name="input_file" dest="reorient.in_file"/>
-    </inputs>
-    <outputs>
-        <output name="reoriented_file" src="do_reorientation.reoriented_file"/>
-    </outputs>
     <positions>
-        <position process="inputs" x="-372" y="25"/>
-        <position process="reorient" x="-213" y="132"/>
-        <position process="do_reorientation" x="-30" y="11"/>
-        <position process="outputs" x="165" y="156"/>
+        <position unit="inputs" x="-372" y="25"/>
+        <position unit="reorient" x="-169" y="-2"/>
+        <position unit="outputs" x="108" y="131"/>
     </positions>
-    <scale factor="0.7"/> 
+    <zoom level="1"/> 
 </pipeline>

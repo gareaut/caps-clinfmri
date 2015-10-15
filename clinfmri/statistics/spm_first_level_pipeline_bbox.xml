@@ -1,0 +1,141 @@
+<pipeline>
+    <docstring>
+        SPM8 fMRI First Level Analysis.
+
+        .. note::
+
+            * `fmri_sessions` and `behavioral_data` must have the same number
+              of elements.
+            * `onsets` and `durations` values must have the same units as the
+              TR used in the unitsings (ie. seconds).
+            set name="mask_threshold" value="-Inf"
+    </docstring>
+    <units>
+        <unit name="smoother">
+            <module>nipype.interfaces.spm.Smooth</module>
+            <set name="in_files" copyfile="Temp" value="None"/>
+            <set name="data_type" value="0"/>
+            <set name="implicit_masking" value="False"/>
+            <set name="out_prefix" value="'s'"/>
+            <set name="output_directory" value="Undefined"/>
+        </unit>
+        <unit name="no_process">
+            <module>mmutils.adapters.io.noprocess_switch </module>
+            <set name="output_directory" value="Undefined"/>
+        </unit>
+        <switch name="smoother_switch">
+            <path name="do_smooting">
+                <unit name="smoother"/>
+            </path>
+            <path name="no_smooting">
+                <unit name="no_process"/>
+            </path>
+        </switch>
+        <unit name="model">
+            <module>clinfmri.statistics.spm_model_specification.spm_model_specification</module>
+            <set name="output_directory" value="None"/>
+            <set name="concatenate_runs" value="True"/>
+            <set name="delimiter" value="'\t'"/>
+            <set name="start" value="0"/>
+            <set name="high_pass_filter_cutoff" value="128"/>
+        </unit>
+        <unit name="design">
+            <module>nipype.interfaces.spm.Level1Design</module>
+            <set name="output_directory" value="Undefined"/>
+            <set name="timing_units" value="'secs'"/>
+            <set name="microtime_resolution" value="16"/>
+            <set name="microtime_onset" value="1"/>
+            <set name="volterra_expansion_order" value="1"/>
+            <set name="global_intensity_normalization" value="None"/>
+            <set name="model_serial_correlations" value="'AR(1)'"/>
+            <set name="factor_info" value="[{'name': {}}, {'levels': {}}]"/>
+            <set name="bases" value="{'hrf': {'derivs': [0, 0]}}"/>
+            <set name="use_v8struct" value="True"/>
+            <set name="mfile" value="True"/>
+            <set name="timing_units" value="'secs'" usedefault="True"/>
+        </unit>
+        <unit name="snap">
+            <module>clinfmri.statistics.spm_utils.spm_save_design</module>
+            <set name="output_directory" value="Undefined"/>
+        </unit>
+        <unit name="estimate">
+            <module>nipype.interfaces.spm.EstimateModel</module>
+            <set name="output_directory" value="Undefined"/>
+            <set name="estimation_method" value="{'Classical': 1}"/>
+            <set name="use_v8struct" value="True"/>
+            <set name="mfile" value="True"/>
+            <set name="group_contrast" value="Undefined"/>
+        </unit>
+        <unit name="contrast">
+            <module>nipype.interfaces.spm.EstimateContrast</module>
+            <set name="output_directory" value="Undefined"/>
+            <set name="beta_images" copyfile="Temp" value="None"/>
+            <set name="residual_image" copyfile="Temp" value="None"/>
+        </unit>
+        <unit name="encoding">
+            <module>clinfmri.statistics.spm_utils.spm_image_nii_encoding</module>
+            <set name="output_directory" value="Undefined"/>
+        </unit>
+    </units>
+    <links>
+        <!-- INTERNAL LINKS -->
+        <link source="output_directory" destination="design.spm_mat_dir"/>
+        <link source="smoother._smoothed_files" destination="model.fmri_sessions"/>
+        <link source="no_process.output_value" destination="model.fmri_sessions"/>
+        <link source="time_repetition" destination="design.interscan_interval"/>
+        <link source="model.session_info" destination="design.session_info"/>
+        <link source="design._spm_mat_file" destination="snap.spm_mat_file"/>
+        <link source="design._spm_mat_file" destination="estimate.spm_mat_file"/>
+        <link source="estimate._spm_mat_file" destination="contrast.spm_mat_file"/>
+        <link source="estimate._residual_image" destination="contrast.residual_image"/>
+        <link source="estimate._beta_images" destination="contrast.beta_images"/>
+        <link source="contrasts" destination="encoding.contrasts"/>
+        <link source="contrast._spmF_images" destination="encoding.spmF_images"/>
+        <link source="contrast._spmT_images" destination="encoding.spmT_images"/>
+        <link source="contrast._con_images" destination="encoding.con_images"/>
+        <link source="contrast._ess_images" destination="encoding.ess_images"/>
+        <!-- INPUTS -->
+        <link source="mask_image" destination="design.mask_image"/>
+        <link source="fwhm" destination="smoother.fwhm"/>
+        <link source="fmri_sessions" destination="smoother.in_files"/>
+        <link source="fmri_sessions" destination="no_process.input_value"/>
+        <link source="behavioral_data" destination="model.behavioral_data"/>
+        <link source="onset_name" destination="model.onset_name"/>
+        <link source="condition_name" destination="model.condition_name"/>
+        <link source="time_repetition" destination="model.time_repetition"/>
+        <link source="start" destination="model.start"/>
+        <link source="high_pass_filter_cutoff" destination="model.high_pass_filter_cutoff"/>
+        <link source="bases" destination="design.bases"/>
+        <link source="contrasts" destination="contrast.contrasts"/>
+        <link source="delimiter" destination="model.delimiter"/>
+        <link source="realignment_parameters" destination="model.realignment_parameters"/>
+        <link source="duration_name" destination="model.duration_name"/>
+        <link source="concatenate_runs" destination="model.concatenate_runs"/>
+        <!-- OUTPUTS -->
+        <link source="contrast._spm_mat_file" destination="spm_contrast_mat_file"/>
+        <link source="encoding.nii_spmF_images" destination="spm_F_images"/>
+        <link source="encoding.nii_spmT_images" destination="spm_T_images"/>
+        <link source="encoding.nii_con_images" destination="spm_con_images"/>
+        <link source="encoding.nii_ess_images" destination="spm_ess_images"/>
+        <link source="design._spm_mat_file" destination="spm_design_mat_file"/>
+        <link source="snap.spm_design_snap" destination="spm_design_snap"/>
+        <link source="estimate._spm_mat_file" destination="spm_estimate_mat_file"/>
+        <link source="estimate._beta_images" destination="spm_beta_images"/>
+        <link source="estimate._mask_image" destination="out_mask_image"/>
+        <link source="estimate._RPVimage" destination="RPVimage"/>
+        <link source="model.model_specifications" destination="model_specifications"/>
+    </links>
+    <positions>
+        <position unit="inputs" x="-652" y="-12"/>
+        <position unit="model" x="-58" y="172"/>
+        <position unit="design" x="178" y="-376"/>
+        <position unit="snap" x="600" y="-300"/>
+        <position unit="estimate" x="464" y="198"/>
+        <position unit="contrast" x="760" y="-194"/>
+        <position unit="encoding" x="1068" y="130"/>
+        <position unit="outputs" x="1570" y="102"/>
+        <position unit="no_process" x="-274" y="518"/>
+        <position unit="smoother" x="-290" y="-326"/>
+    </positions>
+    <zoom level="0.6"/> 
+</pipeline>

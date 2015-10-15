@@ -1,6 +1,6 @@
 <pipeline>
     <docstring>
-        FMRI spatial preprocessings.
+        FMRI spatial preunitings (iterative block).
 
         Steps:
             * Reorientation
@@ -12,85 +12,69 @@
             * Smoothing
             * BET
     </docstring>
-    <processes>
-        <standard name="reorientfunc">
-            <module>pclinfmri.utils.image_reorientation.xml</module>
-        </standard>
-        <standard name="reorientstruct">
-            <module>pclinfmri.utils.image_reorientation.xml</module>
-        </standard>
-        <standard name="register">
-            <module>pclinfmri.utils.itk_slice_registration.xml</module>
-        </standard>
-        <standard name="slicer">
-            <module>pclinfmri.preproc.slice_timing.xml</module>
-        </standard>
-        <standard name="realign">
-            <module>pclinfmri.preproc.spm_realignement.xml</module>
-        </standard>
-        <standard name="coregister">
-            <module>pclinfmri.preproc.spm_coregistration.xml</module>
-        </standard>
-        <standard name="normalize">
-            <module>pclinfmri.preproc.spm_normalization.xml</module>
-        </standard>
-        <standard name="smoothing">
-            <module>pclinfmri.utils.spm_smoothing.xml</module>
-        </standard>
-        <standard name="bet">
-            <module>pclinfmri.utils.fsl_bet.xml</module>
-            <force name="use_4d_input" value="True"/>
-        </standard>
-    </processes>
+    <units>
+        <unit name="fmri_preproc">
+            <module>clinfmri.preproc.fmri_preproc_bbox.xml</module>
+            <set name="output_directory" value="None" />
+            <iterinput name="fmri_file"/>
+            <iterinput name="structural_file"/>
+            <iteroutput name="acquisition_time"/>
+            <iteroutput name="slice_orders"/>
+            <iteroutput name="number_of_slices"/>
+            <iteroutput name="repetition_time"/>
+            <iteroutput name="realign_fmri_file"/>
+            <iteroutput name="qc_snap_mvt"/>
+            <iteroutput name="qc_displacement_file"/>
+            <iteroutput name="qc_edges_file"/>
+            <iteroutput name="smoothed_image_file"/>
+            <iteroutput name="normalized_struct_file"/>
+            <iteroutput name="normalization_parameters"/>
+            <iteroutput name="bet_out_file"/>
+        </unit>
+    </units>
     <links>
-        <link src="reorientfunc.reoriented_file" dest="register.input_file"/>
-        <link src="reorientstruct.reoriented_file" dest="coregister.moving_image"/>
-        <link src="reorient_axes" dest="reorientstruct.axes"/>
-        <link src="do_reorientation" dest="reorientstruct.do_reorientation"/>
-        <link src="register.registered_file" dest="slicer.fmri_file"/>
-        <link src="slicer.time_corrected_fmri_file" dest="realign.fmri_file"/>
-        <link src="realign.reference_mean_file" dest="coregister.reference_image"/>
-        <link src="realign.realigned_fmri_header_modified_file" dest="normalize.fmri_file"/>
-        <link src="coregister.coregistered_fmri_file" dest="normalize.coregistered_struct_file"/>
-        <link src="normalize.normalized_fmri_file" dest="smoothing.image_file"/>
-        <link src="normalize.normalized_fmri_file" dest="bet.input_image_file"/>
+        <!-- INPUTS -->
+        <link source="fmri_file" destination="fmri_preproc.iterfmri_file"/>
+        <link source="structural_file" destination="fmri_preproc.iterstructural_file"/>
+        <link source="do_reorientation" destination="fmri_preproc.do_reorientation"/>
+        <link source="force_reprtition_time" destination="fmri_preproc.force_repetition_time"/>
+        <link source="force_slice_order" destination="fmri_preproc.force_slice_order"/>
+        <link source="bet_threshold" destination="fmri_preproc.bet_threshold"/>
+        <link source="smooth_fwhm" destination="fmri_preproc.smooth_fwhm"/>
+        <link source="template_file" destination="fmri_preproc.template_file"/>
+        <link source="coreg_fwhm" destination="fmri_preproc.coreg_fwhm"/>
+        <link source="bet_generate_skull" destination="fmri_preproc.bet_generate_skull"/>
+        <link source="norm_struct_voxel_sizes" destination="fmri_preproc.norm_struct_voxel_sizes"/>
+        <link source="select_slicer" destination="fmri_preproc.select_slicer"/>
+        <link source="rot_thr" destination="fmri_preproc.rot_thr"/>
+        <link source="norm_func_voxel_sizes" destination="fmri_preproc.norm_func_voxel_sizes"/>
+        <link source="realign_register_to_mean" destination="fmri_preproc.realign_register_to_mean"/>
+        <link source="do_registration" destination="fmri_preproc.do_registration"/>
+        <link source="mvt_thr" destination="fmri_preproc.mvt_thr"/>
+        <link source="bet_generate_binary_mask" destination="fmri_preproc.bet_generate_binary_mask"/>
+        <link source="select_registration" destination="fmri_preproc.select_registration"/>
+        <link source="bet_generate_mesh" destination="fmri_preproc.bet_generate_mesh"/>
+        <link source="ref_slice" destination="fmri_preproc.ref_slice"/>
+        <link source="wrap" destination="fmri_preproc.wrap"/>
+        <link source="write_wrap" destination="fmri_preproc.write_wrap"/>
+        <!-- OUTPUTS -->
+        <link source="fmri_preproc.iteracquisition_time" destination="acquisition_time"/>
+        <link source="fmri_preproc.iterslice_orders" destination="slice_orders"/>
+        <link source="fmri_preproc.iternumber_of_slices" destination="number_of_slices"/>
+        <link source="fmri_preproc.iterrepetition_time" destination="repetition_time"/>
+        <link source="fmri_preproc.iterrealign_fmri_file" destination="realign_fmri_file"/>
+        <link source="fmri_preproc.iterqc_snap_mvt" destination="qc_snap_mvt"/>
+        <link source="fmri_preproc.iterqc_displacement_file" destination="qc_displacement_file"/>
+        <link source="fmri_preproc.iterqc_edges_file" destination="qc_edges_file"/>
+        <link source="fmri_preproc.itersmoothed_image_file" destination="smoothed_image_file"/>
+        <link source="fmri_preproc.iternormalized_struct_file" destination="normalized_struct_file"/>
+        <link source="fmri_preproc.iternormalization_parameters" destination="normalization_parameters"/>
+        <link source="fmri_preproc.iterbet_out_file" destination="bet_out_file"/>
     </links>
-    <inputs>
-        <input name="do_reorientation" dest="reorientfunc.do_reorientation"/>
-        <input name="reorient_axes" dest="reorientfunc.axes"/>
-        <input name="fmri_file" dest="reorientfunc.input_file"/>
-        <input name="structural_file" dest="reorientstruct.input_file"/>
-        <input name="coreg_fwhm" dest="coregister.fwhm"/>
-        <input name="realign_register_to_mean" dest="realign.register_to_mean"/>
-        <input name="mvt_thr" dest="realign.mvt_thr"/>
-        <input name="rot_thr" dest="realign.rot_thr"/>
-        <input name="norm_struct_voxel_sizes" dest="normalize.struct_voxel_sizes"/>
-        <input name="norm_func_voxel_sizes" dest="normalize.func_voxel_sizes"/>
-        <input name="template_file" dest="normalize.template_file"/>
-        <!-- <input name="smooth_fwhm" dest="smoothing.fwhm"/> -->
-        <input name="bet_generate_binary_mask" dest="bet.generate_binary_mask"/>
-        <input name="bet_generate_skull" dest="bet.generate_skull"/>
-        <input name="bet_generate_mesh" dest="bet.generate_mesh"/>
-        <input name="bet_threshold" dest="bet.bet_threshold"/>
-    </inputs>
-    <outputs>
-        <output name="bet_out_file" src="bet.bet_out_file"/>
-        <output name="qc_snap_mvt" src="realign.snap_mvt"/>
-        <output name="qc_displacement_file" src="realign.displacement_file"/>
-        <output name="qc_edges_file" src="normalize.qc_edges_file" optional="True"/>
-    </outputs>
     <positions>
-        <position process="inputs" x="-1072" y="281"/>
-        <position process="reorientfunc" x="-802" y="35"/>
-        <position process="reorientstruct" x="-456" y="807"/>
-        <position process="register" x="-622" y="85"/>
-        <position process="slicer" x="-453" y="227"/>
-        <position process="realign" x="-226" y="575"/>
-        <position process="coregister" x="-164" y="47"/>
-        <position process="normalize" x="-125" y="254"/>
-        <position process="bet" x="148" y="815"/>
-        <position process="smoothing" x="220" y="620"/>
-        <position process="outputs" x="618" y="371"/>
+        <position unit="inputs" x="-337" y="50"/>
+        <position unit="outputs" x="471" y="500"/>
+        <position unit="fmri_preproc" x="50" y="50"/>
     </positions>
-    <scale factor="0.3"/> 
+    <zoom level="1"/> 
 </pipeline>
