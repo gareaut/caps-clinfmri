@@ -36,8 +36,8 @@
         <!-- INPUTS -->
         <link source="fmri_file" destination="fmri_preproc.iterfmri_file"/>
         <link source="structural_file" destination="fmri_preproc.iterstructural_file"/>
-        <link source="do_reorientation" destination="fmri_preproc.do_reorientation"/>
-        <link source="force_reprtition_time" destination="fmri_preproc.force_repetition_time"/>
+        <link source="reorient_and_register" destination="fmri_preproc.reorient_and_register"/>
+        <link source="force_repetition_time" destination="fmri_preproc.force_repetition_time"/>
         <link source="force_slice_order" destination="fmri_preproc.force_slice_order"/>
         <link source="bet_threshold" destination="fmri_preproc.bet_threshold"/>
         <link source="smooth_fwhm" destination="fmri_preproc.smooth_fwhm"/>
@@ -49,7 +49,6 @@
         <link source="rot_thr" destination="fmri_preproc.rot_thr"/>
         <link source="norm_func_voxel_sizes" destination="fmri_preproc.norm_func_voxel_sizes"/>
         <link source="realign_register_to_mean" destination="fmri_preproc.realign_register_to_mean"/>
-        <link source="do_registration" destination="fmri_preproc.do_registration"/>
         <link source="mvt_thr" destination="fmri_preproc.mvt_thr"/>
         <link source="bet_generate_binary_mask" destination="fmri_preproc.bet_generate_binary_mask"/>
         <link source="select_registration" destination="fmri_preproc.select_registration"/>

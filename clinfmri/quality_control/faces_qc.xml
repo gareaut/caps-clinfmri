@@ -1,0 +1,38 @@
+<pipeline>
+    <docstring>
+        QC scores from the probabilstic functional atlas of faces regions
+        See Zhen 2015 NeuroImage doi:10.1016/j.neuroimage.2015.03.010
+        See also the resource : http://www.brainactivityatlas.org/atlas/atlas-explorer/
+    </docstring>
+    <units>
+        <unit name="spm_threshold">
+            <module>nipype.interfaces.spm.model.Threshold</module>
+            <set name="output_directory" value="Undefined"/>
+        </unit>
+        <unit name="compute_scores">
+            <module>clinfmri.quality_control.faces_qc.compute_scores</module>
+            <set name="output_directory" value="Undefined"/>
+        </unit>
+    </units>
+    <links>
+        <!-- INPUTS -->
+        <link source="contrast_index" destination="spm_threshold.contrast_index"/>
+        <link source="extent_fdr_p_threshold" destination="spm_threshold.extent_fdr_p_threshold"/>
+        <link source="spm_mat_file" destination="spm_threshold.spm_mat_file"/>
+        <link source="stat_image" destination="spm_threshold.stat_image"/>
+        <link source="atlas_names" destination="compute_scores.atlas_names"/>
+        <link source="atlas" destination="compute_scores.atlas"/>
+        <!-- INTERNAL LINKS -->
+        <link source="spm_threshold._thresholded_map" destination="compute_scores.input_image"/>
+        <!-- OUTPUTS -->
+        <link source="compute_scores.score_file" destination="score_file"/>
+        <link source="compute_scores.histogram" destination="histogram"/>
+    </links>
+    <positions>
+        <position unit="inputs" x="-553" y="180"/>
+        <position unit="outputs" x="479" y="834"/>
+        <position unit="compute_scores" x="297" y="735"/>
+        <position unit="spm_threshold" x="50" y="50"/>
+    </positions>
+    <zoom level="0.6"/> 
+</pipeline>

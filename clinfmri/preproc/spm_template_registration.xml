@@ -1,105 +1,47 @@
 <pipeline>
     <docstring>
-        SPM structural and functional warping to a template.
+        SPM structural and functional warping to a template (3D or 4D).
     </docstring>
     <units>
-        <unit name="ungzip_funcadapter">
-            <module>mmutils.adapters.io.ungzip_file</module>
-            <set name="prefix" value="'u'"/>
-            <set name="output_directory" value="Undefined"/>
+        <unit name="4D_template_wraping">
+            <module>clinfmri.preproc.spm_template_registration_4D.xml</module>
         </unit>
-        <unit name="ungzip_structadapter">
-            <module>mmutils.adapters.io.ungzip_file</module>
-            <set name="prefix" value="'u'"/>
-            <set name="output_directory" value="Undefined"/>
-        </unit>
-        <unit name="spm_input_adapter_1">
-            <module>mmutils.adapters.io.element_to_list</module>
-        </unit>
-        <unit name="spm_output_adapter_1">
-            <module>mmutils.adapters.io.list_to_element</module>
-        </unit>
-        <unit name="ungzip_templateadapter">
-            <module>mmutils.adapters.io.ungzip_file</module>
-            <set name="prefix" value="'u'"/>
-            <set name="output_directory" value="Undefined"/>
-        </unit>       
-        <unit name="spm_normalize">
-            <module>clinfmri.nipype_interfaces.spm.Normalize</module>
-            <set name="write_voxel_sizes" value="[1., 1., 1.]"/>
-            <set name="bounding_box" value="[[-78, -112, -50], [78, 76, 85]]"/>
-            <set name="write_interp" value="1"/>
-            <set name="jobtype" value="'estwrite'"/>
-            <set name="out_prefix" value="'w'"/>
-            <set name="output_directory" value="Undefined"/>
-            <set name="parameter_file" value="Undefined"/>
-        </unit>
-        <unit name="spm_funcnormalize">
-            <module>clinfmri.nipype_interfaces.spm.Normalize</module>
-            <set name="write_voxel_sizes" value="[3., 3., 3.]"/>
-            <set name="bounding_box" value="[[-78, -112, -50], [78, 76, 85]]"/>
-            <set name="write_interp" value="1"/>
-            <set name="jobtype" value="'estwrite'"/>
-            <set name="out_prefix" value="'we'"/>
-            <set name="DCT_period_cutoff" value="25"/>
-            <set name="affine_regularization_type" value="'mni'"/>
-            <set name="template_image_smoothing" value="0."/>
-            <set name="source_image_smoothing" value="8."/>
-            <set name="nonlinear_iterations" value="16"/>
-            <set name="nonlinear_regularization" value="1"/>
-            <set name="write_preserve" value="False"/>
-            <set name="output_directory" value="Undefined"/>
-            <set name="parameter_file" value="Undefined"/>
-            <set name="source" value="Undefined"/>
-            <set name="write_interp" value="4"/>
-            <set name="template" value="Undefined"/>
-            <set name="write_wrap" value="[0, 1, 0]"/>
+        <unit name="3D_template_wraping">
+            <module>clinfmri.preproc.spm_template_registration_3D.xml</module>
         </unit>
         <switch name="template_type">
             <path name="4D">
+                <unit name="4D_template_wraping"/>
             </path>
             <path name="3D">
-                <unit name="ungzip_templateadapter"/>
-                <unit name="ungzip_structadapter"/>
-                <unit name="spm_normalize"/>
-                <unit name="spm_input_adapter_1"/>
-                <unit name="spm_output_adapter_1"/>
+                <unit name="3D_template_wraping"/>
             </path>
         </switch>
     </units>
     <links>
-        <!-- ADAPTERS -->
-        <link source="ungzip_funcadapter.ungzipfname" destination="spm_input_adapter_1.element"/>
-        <link source="spm_funcnormalize._normalized_files" destination="spm_output_adapter_1.listobj"/>
-        <!-- SPM -->
-        <link source="ungzip_templateadapter.ungzipfname" destination="spm_normalize.template"/>
-        <link source="template_file" destination="spm_funcnormalize.template"/>
-        <link source="ungzip_structadapter.ungzipfname" destination="spm_normalize.source"/>
-        <link source="ungzip_funcadapter.ungzipfname" destination="spm_funcnormalize.source"/>
-        <link source="spm_input_adapter_1.adaptedelement" destination="spm_funcnormalize.apply_to_files"/>
-        <link source="spm_normalize._normalization_parameters" destination="spm_funcnormalize.parameter_file"/>
         <!-- INPUTS -->
-        <link source="fmri_file" destination="ungzip_funcadapter.fname"/>
-        <link source="coregistered_struct_file" destination="ungzip_structadapter.fname"/>
-        <link source="template_file" destination="ungzip_templateadapter.fname"/>
-        <link source="struct_voxel_sizes" destination="spm_normalize.write_voxel_sizes"/>
-        <link source="func_voxel_sizes" destination="spm_funcnormalize.write_voxel_sizes"/>
+        <link source="fmri_file" destination="4D_template_wraping.fmri_file"/>
+        <link source="fmri_file" destination="3D_template_wraping.fmri_file"/>
+        <link source="template_file" destination="4D_template_wraping.template_file"/>
+        <link source="template_file" destination="3D_template_wraping.template_file"/>
+        <link source="coregistered_struct_file" destination="3D_template_wraping.coregistered_struct_file"/>
+        <link source="coregistered_struct_file" destination="4D_template_wraping.coregistered_struct_file"/>
+        <link source="func_voxel_sizes" destination="4D_template_wraping.func_voxel_sizes"/>
+        <link source="func_voxel_sizes" destination="3D_template_wraping.func_voxel_sizes"/>
+        <link source="struct_voxel_sizes" destination="3D_template_wraping.struct_voxel_sizes"/>
         <!-- OUTPUTS -->
-        <link source="spm_normalize._normalization_parameters" destination="normalization_parameters"/>
-        <link source="spm_output_adapter_1.element" destination="normalized_fmri_file"/>
-        <link source="spm_funcnormalize._normalized_source" destination="normalized_fmri_file"/>
-        <link source="spm_normalize._normalized_source" destination="normalized_struct_file"/>
+        <link source="4D_template_wraping.normalization_parameters" destination="normalization_parameters"/>
+        <link source="3D_template_wraping.normalization_parameters" destination="normalization_parameters"/>
+        <link source="3D_template_wraping.normalized_fmri_file" destination="normalized_fmri_file"/>
+        <link source="4D_template_wraping.normalized_fmri_file" destination="normalized_fmri_file"/>
+        <link source="3D_template_wraping.normalized_struct_file" destination="normalized_struct_file"/>
+        <link source="4D_template_wraping.normalized_struct_file" destination="normalized_struct_file"/>
     </links>
     <positions>
-        <position unit="inputs" x="-1056" y="274"/>
-        <position unit="spm_input_adapter_1" x="-379" y="-179"/>
-        <position unit="spm_output_adapter_1" x="119" y="442"/>
-        <position unit="ungzip_funcadapter" x="-601" y="-254"/>
-        <position unit="ungzip_structadapter" x="-881" y="737"/>
-        <position unit="ungzip_templateadapter" x="-1092" y="813"/>
-        <position unit="spm_normalize" x="-639" y="488"/>
-        <position unit="spm_funcnormalize" x="-141" y="-229"/>
-        <position unit="outputs" x="377" y="1138"/>
+        <position unit="3D_template_wraping" x="67" y="231" />
+        <position unit="4D_template_wraping" x="58" y="63" />
+        <position unit="inputs" x="-236" y="140"/>
+        <position unit="outputs" x="428" y="283"/>
     </positions>
-    <zoom level="0.5"/> 
+    <zoom level="1.0"/> 
 </pipeline>

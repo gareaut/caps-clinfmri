@@ -14,6 +14,7 @@ from fmri_subject_info import get_onsets
 # system import
 import os
 import json
+import numpy
 
 
 def spm_model_specification(behavioral_data, fmri_sessions, onset_name,
@@ -87,8 +88,12 @@ def spm_model_specification(behavioral_data, fmri_sessions, onset_name,
         durations = []
         for condition_name, item in all_onsets.items():
             conditions.append(condition_name)
-            onsets.append([float(x) for x in item["onsets"]])
-            durations.append([float(x) for x in item["durations"]])
+            if str(item["onsets"][0]) == "nan":
+                onsets.append([numpy.nan])
+                durations.append([numpy.nan])
+            else:
+                onsets.append([float(x) for x in item["onsets"]])
+                durations.append([float(x) for x in item["durations"]])
         info.append(
             Bunch(conditions=conditions, onsets=onsets, durations=durations))
 

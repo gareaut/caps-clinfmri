@@ -37,7 +37,7 @@ def get_onsets(csvfile, condition_name, onset_name, duration_name,
 
     for condition in conditions.keys():
         indices = [i for i, x in enumerate(onsets[condition_name])
-                     if x == condition]
+                   if x == condition]
         conditions[condition]["onsets"] = [onsets[onset_name][i]
                                            for i in indices]
         conditions[condition]["durations"] = [onsets[duration_name][i]

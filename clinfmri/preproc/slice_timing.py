@@ -45,7 +45,7 @@ def time_serie_metadata(fmri_file, force_repetition_time=0,
     print force_repetition_time
 
     # Get image information from header if necessary
-    if not force_repetition_time or not force_slice_orders:
+    if force_repetition_time == 0 or len(force_slice_orders) == 0:
         try:
             number_of_slices = header.get_n_slices()
         except:
@@ -57,13 +57,13 @@ def time_serie_metadata(fmri_file, force_repetition_time=0,
         number_of_slices = nii.shape[-2]
 
     # Get the repetition time
-    if not force_repetition_time:
+    if force_repetition_time == 0:
         repetition_time = (slice_duration * number_of_slices / 1000.)  # sec
     else:
         repetition_time = force_repetition_time
 
     # Get the slice acquisition times
-    if not force_slice_orders:
+    if len(force_slice_orders) == 0:
         slice_orders = numpy.round(slice_times / slice_duration).astype(int)
         slice_orders = [index + 1 for index in slice_orders]
     else:
