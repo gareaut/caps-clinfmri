@@ -17,11 +17,10 @@
             <set name="data_type" value="0"/>
             <set name="implicit_masking" value="False"/>
             <set name="out_prefix" value="'s'"/>
-            <set name="output_directory" value="Undefined"/>
+            <set name="output_directory" value="None"/>
         </unit>
         <unit name="no_process">
             <module>mmutils.adapters.io.noprocess_switch </module>
-            <set name="output_directory" value="Undefined"/>
         </unit>
         <switch name="smoother_switch">
             <path name="do_smooting">
@@ -41,12 +40,12 @@
         </unit>
         <unit name="design">
             <module>nipype.interfaces.spm.Level1Design</module>
-            <set name="output_directory" value="Undefined"/>
+            <set name="output_directory" value="None"/>
             <set name="timing_units" value="'secs'"/>
             <set name="microtime_resolution" value="16"/>
             <set name="microtime_onset" value="1"/>
             <set name="volterra_expansion_order" value="1"/>
-            <set name="global_intensity_normalization" value="None"/>
+            <set name="global_intensity_normalization" value="'none'"/>
             <set name="model_serial_correlations" value="'AR(1)'"/>
             <set name="factor_info" value="[{'name': {}}, {'levels': {}}]"/>
             <set name="bases" value="{'hrf': {'derivs': [0, 0]}}"/>
@@ -56,25 +55,24 @@
         </unit>
         <unit name="snap">
             <module>clinfmri.statistics.spm_utils.spm_save_design</module>
-            <set name="output_directory" value="Undefined"/>
+            <set name="output_directory" value="None"/>
         </unit>
         <unit name="estimate">
             <module>nipype.interfaces.spm.EstimateModel</module>
-            <set name="output_directory" value="Undefined"/>
+            <set name="output_directory" value="None"/>
             <set name="estimation_method" value="{'Classical': 1}"/>
             <set name="use_v8struct" value="True"/>
             <set name="mfile" value="True"/>
-            <set name="group_contrast" value="Undefined"/>
         </unit>
         <unit name="contrast">
             <module>nipype.interfaces.spm.EstimateContrast</module>
-            <set name="output_directory" value="Undefined"/>
+            <set name="output_directory" value="None"/>
             <set name="beta_images" copyfile="Temp" value="None"/>
             <set name="residual_image" copyfile="Temp" value="None"/>
         </unit>
         <unit name="encoding">
             <module>clinfmri.statistics.spm_utils.spm_image_nii_encoding</module>
-            <set name="output_directory" value="Undefined"/>
+            <set name="output_directory" value="None"/>
         </unit>
     </units>
     <links>

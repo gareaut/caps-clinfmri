@@ -1,0 +1,18 @@
+{
+    "First level analysis": {
+        "module": "clinfmri.statistics.spm_first_level_pipeline.xml",
+        "category": "fMRI",
+        "time_cost": 1,
+        "qc_cost": 1,
+        "pilot": "",
+        "references": [
+            [
+                "This code was used in 2015 by David Goyard ",
+                "<david.goyard@cea.fr> to treat the IMAGEN_ data in",
+                "NeuroSpin (~80 functional images).",
+                "",
+                ".. _IMAGEN: http://www.imagen.org/"
+            ]
+        ]
+    }
+}
