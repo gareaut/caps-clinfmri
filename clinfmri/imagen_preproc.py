@@ -15,11 +15,11 @@ from glob import glob
 import shutil
 import sys
 
-for item in sys.path:
-    if any(word in item for word in ['mmutils', 'clinfmri']):
-        sys.path.remove(item)
-sys.path.append('/volatile/git/caps-clinfmri')
-sys.path.append('/volatile/git/caps-mmutils')
+#for item in sys.path:
+    #if any(word in item for word in ['mmutils', 'clinfmri']):
+        #sys.path.remove(item)
+#sys.path.append('/volatile/git/caps-clinfmri')
+#sys.path.append('/volatile/git/caps-mmutils')
 import clinfmri
 import mmutils
 print clinfmri.__file__
