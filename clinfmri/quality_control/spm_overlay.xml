@@ -22,8 +22,8 @@
         </unit>
         <unit name="spm_reslice">
             <module>clinfmri.nipype_interfaces.spm.ResliceToReference</module>
-            <set name="voxel_sizes" value="[1., 1., 1.]"/>
-            <set name="bounding_box" value="[[-78, -112, -50], [79, 77, 86]]"/>
+            <set name="voxel_sizes" value="[3., 3., 3.]"/>
+            <set name="bounding_box" value="[[-78, -112, -50], [78, 76, 85]]"/>
             <set name="interpolation" value="1"/>
             <set name="output_directory" value="Undefined"/>
         </unit>

@@ -27,21 +27,22 @@
         </unit>       
         <unit name="spm_normalize">
             <module>clinfmri.nipype_interfaces.spm.Normalize</module>
-            <set name="write_voxel_sizes" value="[1., 1., 1.]"/>
-            <set name="bounding_box" value="[[-78, -112, -50], [78, 76, 85]]"/>
+            <set name="write_voxel_sizes" value="[3., 3., 3.]"/>
+            <set name="write_bounding_box" value="[-78, -112, -50, 78, 76, 85]"/>
             <set name="write_interp" value="1"/>
             <set name="jobtype" value="'estwrite'"/>
             <set name="out_prefix" value="'w'"/>
             <set name="output_directory" value="Undefined"/>
             <set name="parameter_file" value="Undefined"/>
+            <set name="_normalization_parameters" value="Undefined"/>
         </unit>
         <unit name="spm_funcnormalize">
             <module>clinfmri.nipype_interfaces.spm.Normalize</module>
             <set name="write_voxel_sizes" value="[3., 3., 3.]"/>
-            <set name="bounding_box" value="[[-78, -112, -50], [78, 76, 85]]"/>
+            <set name="write_bounding_box" value="[-78, -112, -50, 78, 76, 85]"/>
             <set name="write_interp" value="1"/>
-            <set name="jobtype" value="'estwrite'"/>
-            <set name="out_prefix" value="'we'"/>
+            <set name="jobtype" value="'write'"/>
+            <set name="out_prefix" value="'w'"/>
             <set name="DCT_period_cutoff" value="25"/>
             <set name="affine_regularization_type" value="'mni'"/>
             <set name="template_image_smoothing" value="0."/>
