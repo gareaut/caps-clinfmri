@@ -18,6 +18,8 @@
             <iterinput name="fmri_sessions"/>
             <iterinput name="behavioral_data"/>
             <iterinput name="realignment_parameters"/>
+            <iterinput name="sid"/>
+            <iterinput name="w2w_mat_file"/>
             <iteroutput name="spm_design_mat_file"/>
             <iteroutput name="spm_design_snap"/>
             <iteroutput name="spm_estimate_mat_file"/>
@@ -30,6 +32,7 @@
             <iteroutput name="spm_con_images"/>
             <iteroutput name="spm_ess_images"/>
             <iteroutput name="model_specifications"/>
+            <iteroutput name="non_interrest_regressors"/>
         </unit>
     </units>
     <links>
@@ -38,6 +41,8 @@
         <link source="fmri_sessions" destination="first_level_pipeline.iterfmri_sessions"/>
         <link source="behavioral_data" destination="first_level_pipeline.iterbehavioral_data"/>
         <link source="realignment_parameters" destination="first_level_pipeline.iterrealignment_parameters"/>
+        <link source="sids" destination="first_level_pipeline.itersid"/>
+        <link source="w2w_mat_files" destination="first_level_pipeline.iterw2w_mat_file"/>
         <link source="condition_name" destination="first_level_pipeline.condition_name"/>
         <link source="high_pass_filter_cutoff" destination="first_level_pipeline.high_pass_filter_cutoff"/>
         <link source="start" destination="first_level_pipeline.start"/>
@@ -64,6 +69,7 @@
         <link source="first_level_pipeline.iterspm_con_images" destination="spm_con_images"/>
         <link source="first_level_pipeline.iterspm_ess_images" destination="spm_ess_images"/>
         <link source="first_level_pipeline.itermodel_specifications" destination="model_specifications"/>
+        <link source="first_level_pipeline.iternon_interrest_regressors" destination="non_interrest_regressors"/>
     </links>
     <positions>
         <position unit="inputs" x="50" y="50"/>

@@ -1,0 +1,54 @@
+<pipeline>
+    <docstring>
+        Extract non-interrest regressor from ROI voxels timecourse.
+
+        Get the freesurfer segmentation
+        Compute svd on vowels timecourse in ROIS
+        Get first vectors as non-interrest regressor and output them
+    </docstring>
+    <units>
+        <unit name="get_roi_mask">
+            <module>clindmri.segmentation.freesurfer.mri_binarize</module>
+            <set name="interpolation_method" value="'interpolate'"/>
+            <set name="order" value="0"/>
+            <set name="cval" value="0"/>
+        </unit>
+        <unit name="resample_image">
+            <module>clinfmri.statistics.csf_covars.resample_image</module>
+            <set name="output_directory" value="None"/>
+            <set name="erode_path_nb" value="0"/>
+        </unit>
+        <unit name="extract_regressors">
+            <module>clinfmri.statistics.csf_covars.get_covars</module>
+            <set name="output_directory" value="None"/>
+            <set name="min_nb_of_voxels" value="50"/>
+        </unit>
+    </units>
+    <links>
+        <!-- INPUTS -->
+        <link source="regions_label" destination="get_roi_mask.regions_label"/>
+        <link source="fsdir" destination="get_roi_mask.fsdir"/>
+        <link source="sid" destination="get_roi_mask.sid"/>
+        <link source="region_ids" destination="get_roi_mask.region_ids"/>
+        <link source="w2wmap_file" destination="resample_image.w2wmap_file"/>
+        <link source="verbose" destination="resample_image.verbose"/>
+        <link source="fmri_file" destination="resample_image.target_file"/>
+        <link source="verbose" destination="extract_regressors.verbose"/>
+        <link source="fmri_file" destination="extract_regressors.func_file"/>
+        <link source="nb_covars" destination="extract_regressors.nb_covars"/>
+        <!-- INTERNAL LINKS -->
+        <link source="get_roi_mask.mask_file" destination="resample_image.source_file"/>
+        <link source="resample_image.resampled_file" destination="extract_regressors.csfmask_file"/>
+        <!-- OUTPUTS -->
+        <link source="extract_regressors.covars" destination="covars"/>
+    </links>
+    <positions>
+        <position unit="get_roi_mask" x="-120" y="-90"/>
+        <position unit="extract_regressors" x="490" y="414"/>
+        <position unit="get_roi_mask" x="-343" y="-78.25"/>
+        <position unit="outputs" x="668" y="564"/>
+        <position unit="resample_image" x="250" y="100"/>
+        <position unit="inputs" x="-375" y="0"/>
+    </positions>
+    <zoom level="0.8"/>
+</pipeline>
