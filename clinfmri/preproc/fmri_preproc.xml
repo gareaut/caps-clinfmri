@@ -56,6 +56,9 @@
         <link source="ref_slice" destination="fmri_preproc.ref_slice"/>
         <link source="wrap" destination="fmri_preproc.wrap"/>
         <link source="write_wrap" destination="fmri_preproc.write_wrap"/>
+        <link source="write_deformation_fields" destination="fmri_preproc.write_deformation_fields"/>
+        <link source="mni_struct_template" destination="fmri_preproc.mni_struct_template"/>
+        <link source="input_image_info" destination="fmri_preproc.input_image_info"/>
         <!-- OUTPUTS -->
         <link source="fmri_preproc.iteracquisition_time" destination="acquisition_time"/>
         <link source="fmri_preproc.iterslice_orders" destination="slice_orders"/>

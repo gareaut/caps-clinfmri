@@ -67,7 +67,7 @@ class ApplyDeformationFieldInputSpec(SPMCommandInputSpec):
         desc='3x2-element list of lists (opt)')
     voxel_sizes = traits.List(
         traits.Float(),
-        [1., 1., 1.],
+        [3., 3., 3.],
         field='comp{2}.idbbvox.vox',
         minlen=3, maxlen=3,
         desc='3-element list (opt)')
@@ -161,7 +161,7 @@ class NormalizeInputSpec(SPMCommandInputSpec):
                                           desc='source smoothing (opt)')
     template_image_smoothing = traits.Float(field='eoptions.smoref',
                                             desc='template smoothing (opt)')
-    affine_regularization_type = traits.Enum('mni', 'size', 'none', field='eoptions.regype',
+    affine_regularization_type = traits.Enum('mni', 'size', 'none', field='eoptions.regtype',
                                               desc='mni, size, none (opt)')
     DCT_period_cutoff = traits.Float(field='eoptions.cutoff',
                                      desc='Cutoff of for DCT bases (opt)')
@@ -171,10 +171,11 @@ class NormalizeInputSpec(SPMCommandInputSpec):
                                             desc='the amount of the regularization for the nonlinear part of the normalization (opt)')
     write_preserve = traits.Bool(field='roptions.preserve',
                      desc='True/False warped images are modulated (opt,)')
-    write_bounding_box = traits.List(traits.List(traits.Float(), minlen=3,
-                                                 maxlen=3),
-                                     field='roptions.bb', minlen=2, maxlen=2,
-                                     desc='3x2-element list of lists (opt)')
+    # write_bounding_box = traits.List(traits.List(traits.Float(), minlen=3,
+    #                                              maxlen=3),
+    #                                  field='roptions.bb', minlen=2, maxlen=2,
+    #                                  desc='3x2-element list of lists (opt)')
+    write_bounding_box = traits.List(traits.Float(), field='roptions.bb', minlen=6, maxlen=6, desc='6-element list (opt)')
     write_voxel_sizes = traits.List(traits.Float(), field='roptions.vox',
                                     minlen=3, maxlen=3,
                                     desc='3-element list (opt)')

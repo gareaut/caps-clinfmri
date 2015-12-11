@@ -32,7 +32,7 @@
             <set name="fwhm" value="5"/>
             <set name="interp" value="2"/>
             <set name="wrap" value="[0, 0, 0]"/>
-            <set name="write_which" value="[2, 1]"/>
+            <set name="write_which" value="[1, 1]"/>
             <set name="write_interp" value="4"/>
             <set name="write_wrap" value="[0, 0, 0]"/>
             <set name="write_mask" value="True"/>

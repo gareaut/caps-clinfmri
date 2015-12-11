@@ -31,7 +31,10 @@
         <unit name="coregister">
             <module>clinfmri.preproc.spm_coregistration.xml</module>
         </unit>
-        <unit name="normalize">
+        <unit name="normalize_fmri">
+            <module>clinfmri.preproc.spm_normalization.xml</module>
+        </unit>
+        <unit name="normalize_anat">
             <module>clinfmri.preproc.spm_normalization.xml</module>
         </unit>
         <unit name="smoothing">
@@ -60,6 +63,15 @@
                 <unit name="register"/>
             </path>
         </switch>
+        <switch name="select_normalization">
+            <path name="fmri">
+                <unit name="normalize_fmri"/>
+            </path>
+            <path name="anat">
+                <unit name="normalize_anat"/>
+            </path>
+        </switch>
+
     </units>
     <links>
         <link source="reorientfunc.reoriented_file" destination="register.input_file"/>
@@ -67,9 +79,13 @@
         <link source="register.registered_file" destination="slicer.fmri_file"/>
         <link source="slicer.corrected_fmri_file" destination="realign.fmri_file"/>
         <link source="realign.reference_mean_file" destination="coregister.reference_image"/>
-        <link source="realign.realigned_fmri_header_modified_file" destination="normalize.fmri_file"/>
-        <link source="coregister.coregistered_file" destination="normalize.coregistered_struct_file"/>
-        <link source="normalize.normalized_fmri_file" destination="smoothing.image_file"/>
+        <link source="realign.realigned_fmri_header_modified_file" destination="normalize_fmri.fmri_file"/>
+        <link source="realign.realigned_fmri_header_modified_file" destination="normalize_anat.fmri_file"/>
+        <link source="realign.reference_mean_file" destination="normalize_fmri.coregistered_struct_file"/>
+        <link source="coregister.coregistered_file" destination="normalize_anat.coregistered_struct_file"/>
+        <link source="normalize_anat.normalized_fmri_file" destination="smoothing.image_file"/>
+        <link source="normalize_fmri.normalized_fmri_file" destination="smoothing.image_file"/>
+
         <!-- INPUTS -->
         <link source="ref_slice" destination="slicer.ref_slice"/>
         <link source="wrap" destination="realign.wrap"/>
@@ -88,17 +104,23 @@
         <link source="realign_register_to_mean" destination="realign.register_to_mean"/>
         <link source="mvt_thr" destination="realign.mvt_thr"/>
         <link source="rot_thr" destination="realign.rot_thr"/>
-        <link source="select_registration" destination="normalize.select_registration"/>
-        <link source="norm_struct_voxel_sizes" destination="normalize.struct_voxel_sizes"/>
-        <link source="norm_func_voxel_sizes" destination="normalize.func_voxel_sizes"/>
-        <link source="template_file" destination="normalize.template_file"/>
+        <link source="select_registration" destination="normalize_fmri.select_registration"/>
+        <link source="select_registration" destination="normalize_anat.select_registration"/>
+        <link source="norm_struct_voxel_sizes" destination="normalize_fmri.struct_voxel_sizes"/>
+        <link source="norm_struct_voxel_sizes" destination="normalize_anat.struct_voxel_sizes"/>
+        <link source="norm_func_voxel_sizes" destination="normalize_fmri.func_voxel_sizes"/>
+        <link source="norm_func_voxel_sizes" destination="normalize_anat.func_voxel_sizes"/>
+        <link source="template_file" destination="normalize_fmri.template_file"/>
+        <link source="template_file" destination="normalize_anat.template_file"/>
         <link source="smooth_fwhm" destination="smoothing.fwhm"/>
         <link source="bet_generate_binary_mask" destination="bet.generate_binary_mask"/>
         <link source="bet_generate_skull" destination="bet.generate_skull"/>
         <link source="bet_generate_mesh" destination="bet.generate_mesh"/>
         <link source="bet_threshold" destination="bet.bet_threshold"/>
         <link source="fmri_file" destination="bet.input_image_file"/>
+<!--
         <link source="template_type" destination="normalize.template_type"/>
+-->
 
         <link source="structural_file" destination="structural_segmentation.input_image_file"/>
         <link source="input_image_info" destination="structural_segmentation.input_image_info"/>
@@ -116,10 +138,13 @@
         <link source="realign.realigned_fmri_file" destination="realign_fmri_file"/>
         <link source="realign.snap_mvt" destination="qc_snap_mvt"/>
         <link source="realign.displacement_file" destination="qc_displacement_file"/>
-        <link source="normalize.qc_edges_file" destination="qc_edges_file"/>
+        <link source="normalize_fmri.qc_edges_file" destination="qc_edges_file"/>
+        <link source="normalize_anat.qc_edges_file" destination="qc_edges_file"/>
         <link source="smoothing.smoothed_image_file" destination="smoothed_image_file"/>
-        <link source="normalize.normalized_struct_file" destination="normalized_struct_file"/>
-        <link source="normalize.normalization_parameters" destination="normalization_parameters"/>
+        <link source="normalize_fmri.normalized_struct_file" destination="normalized_struct_file"/>
+        <link source="normalize_anat.normalized_struct_file" destination="normalized_struct_file"/>
+        <link source="normalize_fmri.normalization_parameters" destination="normalization_parameters"/>.
+        <link source="normalize_anat.normalization_parameters" destination="normalization_parameters"/>
         <link source="bet.bet_out_file" destination="bet_out_file"/>
         <link source="structural_segmentation.out_files" destination="segmented_struct_files"/>
     </links>

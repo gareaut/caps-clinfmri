@@ -21,6 +21,7 @@
     <links>
         <!-- INPUTS -->
         <link source="fmri_file" destination="4D_template_wraping.fmri_file"/>
+        <link source="mean_fmri_file" destination="4D_template_wraping.mean_fmri_file"/>
         <link source="fmri_file" destination="3D_template_wraping.fmri_file"/>
         <link source="template_file" destination="4D_template_wraping.template_file"/>
         <link source="template_file" destination="3D_template_wraping.template_file"/>
