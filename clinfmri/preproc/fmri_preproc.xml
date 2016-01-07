@@ -1,82 +1,343 @@
-<pipeline>
+<pipeline version="1">
     <docstring>
-        FMRI spatial preunitings (iterative block).
+        fMRI spatial preprocessings.
 
-        Steps:
-            * Reorientation
-            * Slice registration
-            * Slice timing
-            * Realignement
-            * Coregistration
-            * Normalization
+        Based on SPM and FSL realize fMRI sequences preprocessings. It is
+        possible to select the slice timing and the normalization algorithms
+        by setting the 'select_slicer' and 'select_normalization' pipeline 
+        parameters. We can choose to use the 'fsl' or 'spm' slicer or we
+        can select a 'fmri' or 'anat' normalization:
+
+        * in the case of an 'anat' normalization a t1 image has to be
+          specified in the 'structural_file' parameter. This case simply
+          register the t1 image to the mean fMRI image and then register the t1
+          image in the fMRI space to the MNI template using the unified
+          'New Segment' SPM procedure.
+        * in the cas of a 'fmri' normalization a functional template image has
+          to be specified in the 'template_file'. This case simply register
+          the mean fMRI image to the template.
+
+        In both case a 'fmri_file' containing the functional sequence has to be
+        specified. The latter is expected to contain the repetition time and
+        slice orders in this header. If it is not the case the
+        'force_slice_orders' and 'force_repetition_time' parameters have to be
+        specified.
+
+        Softawares involved:
+
+        * SPM
+        * FSL: for the slice timing as it is designed for multi-band
+          acquisitions and the brain extraction.
+
+        Steps (with anatomical template alignement):
+            * Slice timing: correct differences in image acquisition time
+              between slices.
+            * Realignement: estimate within modality volume to volume rigid
+              body alignment.
+            * Coregistration: register the t1 image to the functional space.
+            * Normalization: une the SPM unified 'New Segment' algorithm to
+              register the t1 image in the functional space to the MNI
+              template space.
             * Smoothing
-            * BET
+            * BET: brain extraction in the functional sequence.
+
+        Steps (with functional template alignement):
+            * Slice timing: correct differences in image acquisition time
+              between slices.
+            * Realignement: estimate within modality volume to volume rigid
+              body alignment.
+            * Normalization: register the mean functional image to the template
+              space.
+            * Smoothing
+            * BET: brain extraction in the functional sequence.
     </docstring>
     <units>
-        <unit name="fmri_preproc">
-            <module>clinfmri.preproc.fmri_preproc_bbox.xml</module>
-            <set name="output_directory" value="None" />
-            <iterinput name="fmri_file"/>
-            <iterinput name="structural_file"/>
-            <iteroutput name="acquisition_time"/>
-            <iteroutput name="slice_orders"/>
-            <iteroutput name="number_of_slices"/>
-            <iteroutput name="repetition_time"/>
-            <iteroutput name="realign_fmri_file"/>
-            <iteroutput name="qc_snap_mvt"/>
-            <iteroutput name="qc_displacement_file"/>
-            <iteroutput name="qc_edges_file"/>
-            <iteroutput name="smoothed_image_file"/>
-            <iteroutput name="normalized_struct_file"/>
-            <iteroutput name="normalization_parameters"/>
-            <iteroutput name="bet_out_file"/>
+        <unit name="image_manager">
+            <module>clinfmri.preproc.slice_timing.time_serie_metadata</module>
         </unit>
+        <unit name="ungzip_adapter">
+            <module>mmutils.adapters.io.ungzip_file</module>
+            <set name="prefix" value="'u'"/>
+            <set name="output_directory" value="None"/>
+        </unit>
+        <unit name="ungzip_template_adapter">
+            <module>mmutils.adapters.io.ungzip_file</module>
+            <set name="prefix" value="'u'"/>
+            <set name="output_directory" value="None"/>
+        </unit>
+        <unit name="ungzip_struct_adapter">
+            <module>mmutils.adapters.io.ungzip_file</module>
+            <set name="prefix" value="'u'"/>
+            <set name="output_directory" value="None"/>
+        </unit>
+        <unit name="spm_list_adapter">
+            <module>mmutils.adapters.io.element_to_list</module>
+        </unit>
+        <unit name="fsl_list_adapter">
+            <module>mmutils.adapters.io.element_to_list</module>
+        </unit>
+        <unit name="element_adapter">
+            <module>mmutils.adapters.io.list_to_element</module>
+        </unit>
+        <unit name="spm_slicer">
+            <module>nipype.interfaces.spm.SliceTiming</module>
+            <set name="in_files" value="None" copyfile="Temp"/>
+            <set name="ref_slice" value="1"/>
+            <set name="out_prefix" value="'a'"/>
+            <set name="output_directory" value="None"/>
+        </unit>
+        <unit name="fsl_save_timings">
+            <module>clinfmri.preproc.slice_timing.fsl_save_custom_timings</module>
+            <set name="output_directory" value="None"/>
+        </unit>
+        <unit name="fsl_slicer">
+            <module>nipype.interfaces.fsl.SliceTimer</module>
+            <set name="output_type" value="'NIFTI'"/>
+            <set name="slice_direction" value="3"/>
+            <set name="terminal_output" value="'stream'"/>
+            <set name="output_directory" value="None"/>
+        </unit>
+        <unit name="realign">
+            <module>nipype.interfaces.spm.Realign</module>
+            <set name="jobtype" value="'estwrite'"/>
+            <set name="quality" value="1.0"/>
+            <set name="register_to_mean" value="True" />
+            <set name="separation" value="4"/>
+            <set name="fwhm" value="5"/>
+            <set name="interp" value="2"/>
+            <set name="wrap" value="[0, 0, 0]"/>
+            <set name="write_which" value="[2, 1]"/>
+            <set name="write_interp" value="4"/>
+            <set name="write_wrap" value="[0, 0, 0]"/>
+            <set name="write_mask" value="True"/>
+            <set name="out_prefix" value="'r'"/>
+            <set name="output_directory" value="None"/>
+        </unit>
+        <unit name="spm_normalize_template">
+            <module>clinfmri.nipype_interfaces.spm.Normalize</module>
+            <set name="write_voxel_sizes" value="[3., 3., 3.]"/>
+            <set name="write_bounding_box" value="[-78, -112, -50, 78, 76, 85]"/>
+            <set name="write_interp" value="1"/>
+            <set name="jobtype" value="'estwrite'"/>
+            <set name="out_prefix" value="'w'"/>
+            <set name="output_directory" value="None"/>
+            <set name="parameter_file" value="None"/>
+            <set name="_normalization_parameters" value="None"/>
+        </unit>
+        <unit name="spm_funcnormalize_template">
+            <module>clinfmri.nipype_interfaces.spm.Normalize</module>
+            <set name="write_voxel_sizes" value="[3., 3., 3.]"/>
+            <set name="write_bounding_box" value="[-78, -112, -50, 78, 76, 85]"/>
+            <set name="write_interp" value="1"/>
+            <set name="jobtype" value="'write'"/>
+            <set name="out_prefix" value="'w'"/>
+            <set name="DCT_period_cutoff" value="25"/>
+            <set name="affine_regularization_type" value="'mni'"/>
+            <set name="template_image_smoothing" value="0."/>
+            <set name="source_image_smoothing" value="8."/>
+            <set name="nonlinear_iterations" value="16"/>
+            <set name="nonlinear_regularization" value="1"/>
+            <set name="write_preserve" value="False"/>
+            <set name="output_directory" value="None"/>
+            <set name="parameter_file" value="None"/>
+            <set name="source" value="None"/>
+            <set name="write_interp" value="4"/>
+            <set name="template" value="None"/>
+            <set name="write_wrap" value="[0, 1, 0]"/>
+        </unit>
+        <unit name="coregister">
+            <module>nipype.interfaces.spm.Coregister</module>
+            <set name="jobtype" value="'estimate'"/>
+            <set name="cost_function" value="'nmi'"/>
+            <set name="separation" value="[4, 2]"/>
+            <set name="tolerance" value="[0.02, 0.02, 0.02, 0.001, 0.001,
+                                          0.001, 0.01, 0.01, 0.01, 0.001,
+                                          0.001, 0.001]"/>
+            <set name="fwhm" value="[7, 7]"/>
+            <set name="out_prefix" value="'c'"/>
+            <set name="output_directory" value="None"/>
+        </unit>
+        <unit name="tpm_adapter">
+            <module>mmutils.adapters.io.spm_tissue_probability_maps</module>
+        </unit>
+        <unit name="spm_newsegment">
+            <module>nipype.interfaces.spm.NewSegment</module>
+            <set name="channel_files" value="None" copyfile="Temp"/>
+            <set name="channel_info" value="(0.0001, 60, (True, True))"/>
+            <set name="warping_regularization" value="4"/>
+            <set name="sampling_distance" value="3"/>
+            <set name="write_deformation_fields" value="[True, True]"/>
+            <set name="output_directory" value="None"/>
+        </unit>
+        <unit name="spm_structnormalize_mni">
+            <module>clinfmri.nipype_interfaces.spm.ApplyDeformationField</module>
+            <set name="voxel_sizes" value="[3., 3., 3.]"/>
+            <set name="bounding_box" value="[[-78, -112, -50], [78, 76, 85]]"/>
+            <set name="interpolation" value="1"/>
+            <set name="output_directory" value="None"/>
+        </unit>
+        <unit name="spm_funcnormalize_mni">
+            <module>clinfmri.nipype_interfaces.spm.ApplyDeformationField</module>
+            <set name="voxel_sizes" value="[3., 3., 3.]"/>
+            <set name="bounding_box" value="[[-78, -112, -50], [78, 76, 85]]"/>
+            <set name="interpolation" value="1"/>
+            <set name="output_directory" value="None"/>
+        </unit>
+        <unit name="smoothing">
+            <module>nipype.interfaces.spm.Smooth</module>
+            <set name="in_files" value="None" copyfile="Temp"/>
+            <set name="fwhm" value="[5, 5, 5]"/>
+            <set name="data_type" value="0"/>
+            <set name="implicit_masking" value="False"/>
+            <set name="out_prefix" value="'s'"/>
+            <set name="output_directory" value="None"/>
+        </unit>
+        <unit name="bet">
+            <module>clinfmri.utils.fsl_bet.xml</module>
+            <set name="use_4d_input" value="True"/>
+        </unit>
+        <switch name="select_normalization">
+            <path name="fmri">
+                <unit name="ungzip_template_adapter"/>
+                <unit name="spm_normalize_template"/>
+                <unit name="spm_funcnormalize_template"/>
+            </path>
+            <path name="anat">
+                <unit name="ungzip_struct_adapter"/>
+                <unit name="tpm_adapter"/>
+                <unit name="spm_newsegment"/>
+                <unit name="spm_structnormalize_mni"/>
+                <unit name="spm_funcnormalize_mni"/>
+                <unit name="coregister"/>
+                <unit name="element_adapter"/>
+            </path>
+        </switch>
+        <switch name="select_slicer">
+            <path name="fsl">
+                <unit name="fsl_save_timings"/>
+                <unit name="fsl_slicer"/>
+                <unit name="fsl_list_adapter"/>
+            </path>
+            <path name="spm">
+                <unit name="spm_list_adapter"/>
+                <unit name="spm_slicer"/>
+            </path>
+        </switch>
+
     </units>
     <links>
+
         <!-- INPUTS -->
-        <link source="fmri_file" destination="fmri_preproc.iterfmri_file"/>
-        <link source="structural_file" destination="fmri_preproc.iterstructural_file"/>
-        <link source="reorient_and_register" destination="fmri_preproc.reorient_and_register"/>
-        <link source="force_repetition_time" destination="fmri_preproc.force_repetition_time"/>
-        <link source="force_slice_order" destination="fmri_preproc.force_slice_order"/>
-        <link source="bet_threshold" destination="fmri_preproc.bet_threshold"/>
-        <link source="smooth_fwhm" destination="fmri_preproc.smooth_fwhm"/>
-        <link source="template_file" destination="fmri_preproc.template_file"/>
-        <link source="coreg_fwhm" destination="fmri_preproc.coreg_fwhm"/>
-        <link source="bet_generate_skull" destination="fmri_preproc.bet_generate_skull"/>
-        <link source="norm_struct_voxel_sizes" destination="fmri_preproc.norm_struct_voxel_sizes"/>
-        <link source="select_slicer" destination="fmri_preproc.select_slicer"/>
-        <link source="rot_thr" destination="fmri_preproc.rot_thr"/>
-        <link source="norm_func_voxel_sizes" destination="fmri_preproc.norm_func_voxel_sizes"/>
-        <link source="realign_register_to_mean" destination="fmri_preproc.realign_register_to_mean"/>
-        <link source="mvt_thr" destination="fmri_preproc.mvt_thr"/>
-        <link source="bet_generate_binary_mask" destination="fmri_preproc.bet_generate_binary_mask"/>
-        <link source="select_registration" destination="fmri_preproc.select_registration"/>
-        <link source="bet_generate_mesh" destination="fmri_preproc.bet_generate_mesh"/>
-        <link source="ref_slice" destination="fmri_preproc.ref_slice"/>
-        <link source="wrap" destination="fmri_preproc.wrap"/>
-        <link source="write_wrap" destination="fmri_preproc.write_wrap"/>
-        <link source="write_deformation_fields" destination="fmri_preproc.write_deformation_fields"/>
-        <link source="mni_struct_template" destination="fmri_preproc.mni_struct_template"/>
-        <link source="input_image_info" destination="fmri_preproc.input_image_info"/>
+        <link source="fmri_file" destination="fsl_slicer.in_file"/>
+        <link source="fmri_file" destination="ungzip_adapter.fname"/>
+        <link source="force_slice_orders" destination="image_manager.force_slice_orders"/>
+        <link source="force_repetition_time" destination="image_manager.force_repetition_time"/>
+        <link source="fmri_file" destination="image_manager.fmri_file"/>
+        <link source="ref_slice" destination="spm_slicer.ref_slice"/>
+        <link source="realign_wrap" destination="realign.wrap"/>
+        <link source="realign_write_wrap" destination="realign.write_wrap"/>
+        <link source="realign_register_to_mean" destination="realign.register_to_mean"/>
+        <link source="structural_file" destination="ungzip_struct_adapter.fname"/>
+        <link source="coreg_fwhm" destination="coregister.fwhm"/> 
+        <link source="template_file" destination="ungzip_template_adapter.fname"/>
+        <link source="norm_func_voxel_sizes" destination="spm_funcnormalize_template.write_voxel_sizes"/>
+        <link source="norm_struct_voxel_sizes" destination="spm_normalize_template.write_voxel_sizes"/>
+        <link source="norm_func_voxel_sizes" destination="spm_funcnormalize_mni.voxel_sizes"/>
+        <link source="norm_struct_voxel_sizes" destination="spm_structnormalize_mni.voxel_sizes"/>
+        <link source="smooth_fwhm" destination="smoothing.fwhm"/>
+        <link source="bet_generate_binary_mask" destination="bet.generate_binary_mask"/>
+        <link source="bet_generate_skull" destination="bet.generate_skull"/>
+        <link source="bet_generate_mesh" destination="bet.generate_mesh"/>
+        <link source="bet_threshold" destination="bet.bet_threshold"/>
+        <link source="fmri_file" destination="bet.input_image_file"/>
+
+        <!-- ADAPTERS -->
+        <link source="ungzip_struct_adapter.ungzipfname" destination="coregister.source"/>
+        <link source="ungzip_template_adapter.ungzipfname" destination="spm_normalize_template.template"/>
+        <link source="ungzip_adapter.ungzipfname" destination="spm_list_adapter.element"/>
+        <link source="fsl_slicer._slice_time_corrected_file" destination="fsl_list_adapter.element"/>
+        <link source="spm_newsegment._forward_deformation_field" destination="element_adapter.listobj"/>
+
+        <!-- SPM SLICE TIMING -->
+        <link source="spm_list_adapter.adaptedelement" destination="spm_slicer.in_files"/>
+        <link source="image_manager.number_of_slices" destination="spm_slicer.num_slices"/>
+        <link source="image_manager.repetition_time" destination="spm_slicer.time_repetition"/>
+        <link source="image_manager.acquisition_time" destination="spm_slicer.time_acquisition"/>
+        <link source="image_manager.slice_orders" destination="spm_slicer.slice_order"/>
+
+        <!-- FSL SLICE TIMING -->
+        <link source="image_manager.slice_orders" destination="fsl_save_timings.slice_orders"/>
+        <link source="image_manager.repetition_time" destination="fsl_slicer.time_repetition"/>
+        <link source="fsl_save_timings.timings_file" destination="fsl_slicer.custom_timings"/>
+
+        <!-- SPM REALIGN -->
+        <link source="fsl_list_adapter.adaptedelement" destination="realign.in_files"/>
+        <link source="spm_slicer._timecorrected_files" destination="realign.in_files"/>
+
+        <!-- SPM COREGISTER -->
+        <link source="realign._mean_image" destination="coregister.target"/>
+
+        <!-- SPM NORMALIZE TEMPLATE -->
+        <link source="realign._mean_image" destination="spm_normalize_template.source"/>
+        <link source="realign._modified_in_files" destination="spm_funcnormalize_template.apply_to_files"/>
+        <link source="spm_normalize_template._normalization_parameters" destination="spm_funcnormalize_template.parameter_file"/>
+
+        <!-- NEW SEGMENT -->
+        <link source="tpm_adapter.tpm_struct" destination="spm_newsegment.tissues"/>
+        <link source="coregister._coregistered_source" destination="spm_newsegment.channel_files"/>
+        
+        <!-- SPM NORMALIZE MNI -->
+        <link source="element_adapter.element" destination="spm_funcnormalize_mni.deformation_field"/>
+        <link source="element_adapter.element" destination="spm_structnormalize_mni.deformation_field"/>
+        <link source="spm_newsegment._bias_corrected_images" destination="spm_structnormalize_mni.in_files"/>
+        <link source="realign._modified_in_files" destination="spm_funcnormalize_mni.in_files"/>
+
+        <!-- SMOOTH -->
+        <link source="spm_funcnormalize_template._normalized_files" destination="smoothing.in_files"/>
+        <link source="spm_funcnormalize_mni._normalized_files" destination="smoothing.in_files"/>     
+
         <!-- OUTPUTS -->
-        <link source="fmri_preproc.iteracquisition_time" destination="acquisition_time"/>
-        <link source="fmri_preproc.iterslice_orders" destination="slice_orders"/>
-        <link source="fmri_preproc.iternumber_of_slices" destination="number_of_slices"/>
-        <link source="fmri_preproc.iterrepetition_time" destination="repetition_time"/>
-        <link source="fmri_preproc.iterrealign_fmri_file" destination="realign_fmri_file"/>
-        <link source="fmri_preproc.iterqc_snap_mvt" destination="qc_snap_mvt"/>
-        <link source="fmri_preproc.iterqc_displacement_file" destination="qc_displacement_file"/>
-        <link source="fmri_preproc.iterqc_edges_file" destination="qc_edges_file"/>
-        <link source="fmri_preproc.itersmoothed_image_file" destination="smoothed_image_file"/>
-        <link source="fmri_preproc.iternormalized_struct_file" destination="normalized_struct_file"/>
-        <link source="fmri_preproc.iternormalization_parameters" destination="normalization_parameters"/>
-        <link source="fmri_preproc.iterbet_out_file" destination="bet_out_file"/>
+        <link source="image_manager.acquisition_time" destination="acquisition_time"/>
+        <link source="image_manager.slice_orders" destination="slice_orders"/>
+        <link source="image_manager.number_of_slices" destination="number_of_slices"/>
+        <link source="image_manager.repetition_time" destination="repetition_time"/>
+        <link source="spm_slicer._timecorrected_files" destination="timecorrected_files"/>
+        <link source="realign._realigned_files" destination="realigned_files"/>
+        <link source="realign._realignment_parameters" destination="realignement_parameters"/>
+        <link source="realign._mean_image" destination="mean_image"/>
+        <link source="spm_normalize_template._normalization_parameters" destination="normalization_parameters"/>
+        <link source="spm_normalize_template._normalized_source" destination="normalized_struct_file"/>
+        <link source="spm_funcnormalize_template._normalized_files" destination="normalized_fmri_files"/>
+        <link source="spm_newsegment._forward_deformation_field" destination="forward_deformation_field"/>
+        <link source="spm_structnormalize_mni._normalized_files" destination="normalized_struct_files"/>
+        <link source="spm_funcnormalize_mni._normalized_files" destination="normalized_fmri_files"/>
+        <link source="smoothing._smoothed_files" destination="smoothed_image_files"/>
+        <link source="bet.bet_out_file" destination="bet_out_file"/>
     </links>
     <positions>
-        <position unit="inputs" x="-337" y="50"/>
-        <position unit="outputs" x="471" y="500"/>
-        <position unit="fmri_preproc" x="50" y="50"/>
+        <position unit="inputs" x="-1072" y="281"/>
+        <position unit="image_manager" x="-546" y="67"/>
+        <position unit="ungzip_adapter" x="-546" y="329"/>
+        <position unit="spm_list_adapter" x="-379" y="404"/>
+        <position unit="spm_slicer" x="-157" y="380"/>
+        <position unit="realign" x="226" y="565"/>
+        <position unit="coregister" x="559" y="879"/>
+        <position unit="spm_funcnormalize_template" x="1067" y="27"/>
+        <position unit="spm_normalize_template" x="791" y="27"/>
+        <position unit="bet" x="-805" y="-402"/>
+        <position unit="element_adapter" x="1106" y="1753"/>
+        <position unit="smoothing" x="1670" y="709"/>
+        <position unit="outputs" x="2007" y="285"/>
+        <position unit="spm_funcnormalize_mni" x="1353" y="1708"/>
+        <position unit="spm_newsegment" x="838" y="1328"/>
+        <position unit="spm_structnormalize_mni" x="1353" y="1318"/>
+        <position unit="tpm_adapter" x="627" y="1551"/>
+        <position unit="fsl_save_timings" x="-350" y="-124"/>
+        <position unit="fsl_slicer" x="-161" y="-149"/>
+        <position unit="fsl_list_adapter" x="86" y="226"/>
+        <position unit="ungzip_template_adapter" x="549" y="353"/>
+        <position unit="ungzip_struct_adapter" x="346" y="1308"/>
     </positions>
-    <zoom level="1"/> 
+    <zoom level="0.3"/> 
 </pipeline>
+

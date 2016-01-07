@@ -16,7 +16,10 @@ import nibabel
 import numpy
 
 # ITK import
-import SimpleITK as sitk
+try:
+    import SimpleITK as sitk
+except:
+    pass
 
 # MONKEYFMRI import
 from clinfmri.utils.runtime import progress_bar
@@ -83,7 +86,6 @@ def slice_registration(in_file, slice_shift=5, registration_prefix="w",
             slice to slice 2d affine transformation parameters."/>
     </unit>
     """
-    print("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
     # Check the input image exists on the file system
     if not os.path.isfile(in_file):
         raise ValueError("'{0}' is not a valid filename.".format(in_file))
@@ -180,15 +182,13 @@ def slice_registration(in_file, slice_shift=5, registration_prefix="w",
     fsplit = os.path.split(in_file)
     register_file = os.path.join(output_directory, registration_prefix +
                                  fsplit[1])
-    print("AAAAAAAAAAAAAAAAAAAAAAAA")
-    print(register_file)
 
     transfromation_file = os.path.join(output_directory, transformation_prefix +
                                        fsplit[1].split(".")[0] + ".json")
-    print(transfromation_file)
     time_serie_image = nibabel.Nifti1Image(
         ts_reg_data, time_serie_image.get_affine())
     nibabel.save(time_serie_image, register_file)
     with open(transfromation_file, "wb") as openfile:
         json.dump(reg_parameters, openfile, sort_keys=True, indent=4)
+
     return register_file, transfromation_file

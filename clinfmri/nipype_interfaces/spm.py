@@ -127,10 +127,8 @@ class ApplyDeformationField(SPMCommand):
         for filename in self.inputs.in_files:
             _, fname = os.path.split(filename)
             outputs['normalized_files'].append(
-                os.path.join(self.inputs.output_directory,
-                             '%s%s' % (self.inputs.out_prefix, fname)))
+                os.path.realpath('%s%s' % (self.inputs.out_prefix, fname)))
         return outputs
-
 
 
 class NormalizeInputSpec(SPMCommandInputSpec):
@@ -145,8 +143,8 @@ class NormalizeInputSpec(SPMCommandInputSpec):
     jobtype = traits.Enum('estwrite', 'est', 'write',
                           desc='one of: est, write, estwrite (opt, estwrite)',
                           usedefault=True)
-    apply_to_files = InputMultiPath(traits.Either(File(exists=True),
-                                                  traits.List(File(exists=True))),
+    apply_to_files = InputMultiPath(traits.Either(traits.List(File(exists=True)),
+                                                  File(exists=True)),
                                     field='subj.resample',
                                     desc='files to apply transformation to (opt)',
                                     copyfile=True)

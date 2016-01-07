@@ -4,12 +4,65 @@
         "category": "fMRI",
         "time_cost": 1,
         "qc_cost": 1,
-        "pilot": "",
+        "pilots": [],
         "references": [
             [
                 "This code was used in 2015 by David Goyard ",
-                "<david.goyard@cea.fr> to treat the IMAGEN_ data in",
-                "NeuroSpin (~80 functional images).",
+                "<david.goyard@cea.fr> and Antoine Grigis ",
+                "<antoine.grigis@cea.fr> to treat the IMAGEN_ data in",
+                "NeuroSpin (~18000 functional images).",
+                "",
+                ".. _IMAGEN: http://www.imagen.org/"
+            ]
+        ]
+    },
+    "Preprocessings": {
+        "module": "clinfmri.preproc.fmri_preproc.xml",
+        "category": "fMRI",
+        "time_cost": 1,
+        "qc_cost": 1,
+        "pilots": ["clinfmri.preproc.pilot.pilot_preproc_spm_fmri",
+                   "clinfmri.preproc.pilot.pilot_preproc_fsl_anat"]
+        "references": [
+            [
+                "This code was used in 2015 by David Goyard ",
+                "<david.goyard@cea.fr> and Antoine Grigis ",
+                "<antoine.grigis@cea.fr> to treat the IMAGEN_ data in",
+                "NeuroSpin (~18000 functional images).",
+                "",
+                ".. _IMAGEN: http://www.imagen.org/"
+            ]
+        ]
+    },
+    "Unified SPM segmeantion": {
+        "module": "clinfmri.utils.spm_new_segment.xml",
+        "category": "anat",
+        "time_cost": 1,
+        "qc_cost": 1,
+        "pilots": ["clinfmri.utils.pilot_new_segment"],
+        "references": [
+            [
+                "This code was used in 2015 by David Goyard ",
+                "<david.goyard@cea.fr> and Antoine Grigis ",
+                "<antoine.grigis@cea.fr> to treat the IMAGEN_ data in",
+                "NeuroSpin (~18000 functional images).",
+                "",
+                ".. _IMAGEN: http://www.imagen.org/"
+            ]
+        ]
+    },
+    "Brain extraction": {
+        "module": "clinfmri.utils.fsl_bet.xml",
+        "category": "fMRI",
+        "time_cost": 1,
+        "qc_cost": 1,
+        "pilots": ["clinfmri.utils.pilot_bet"],
+        "references": [
+            [
+                "This code was used in 2015 by David Goyard ",
+                "<david.goyard@cea.fr> and Antoine Grigis ",
+                "<antoine.grigis@cea.fr> to treat the IMAGEN_ data in",
+                "NeuroSpin (~18000 functional images).",
                 "",
                 ".. _IMAGEN: http://www.imagen.org/"
             ]
