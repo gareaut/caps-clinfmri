@@ -116,7 +116,8 @@
         <unit name="spm_normalize_template">
             <module>clinfmri.nipype_interfaces.spm.Normalize</module>
             <set name="write_voxel_sizes" value="[3., 3., 3.]"/>
-            <set name="write_bounding_box" value="[-78, -112, -50, 78, 76, 85]"/>
+            <!--<set name="write_bounding_box" value="[-78, -112, -50, 78, 76, 85]"/>-->
+            <set name="write_bounding_box" value="[[-78, -112, -50], [78, 76, 85]]"/>
             <set name="write_interp" value="1"/>
             <set name="jobtype" value="'estwrite'"/>
             <set name="out_prefix" value="'w'"/>
@@ -127,7 +128,8 @@
         <unit name="spm_funcnormalize_template">
             <module>clinfmri.nipype_interfaces.spm.Normalize</module>
             <set name="write_voxel_sizes" value="[3., 3., 3.]"/>
-            <set name="write_bounding_box" value="[-78, -112, -50, 78, 76, 85]"/>
+            <!--<set name="write_bounding_box" value="[-78, -112, -50, 78, 76, 85]"/>-->
+            <set name="write_bounding_box" value="[[-78, -112, -50], [78, 76, 85]]"/>
             <set name="write_interp" value="1"/>
             <set name="jobtype" value="'write'"/>
             <set name="out_prefix" value="'w'"/>

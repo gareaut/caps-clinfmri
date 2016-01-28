@@ -169,11 +169,11 @@ class NormalizeInputSpec(SPMCommandInputSpec):
                                             desc='the amount of the regularization for the nonlinear part of the normalization (opt)')
     write_preserve = traits.Bool(field='roptions.preserve',
                      desc='True/False warped images are modulated (opt,)')
-    # write_bounding_box = traits.List(traits.List(traits.Float(), minlen=3,
-    #                                              maxlen=3),
-    #                                  field='roptions.bb', minlen=2, maxlen=2,
-    #                                  desc='3x2-element list of lists (opt)')
-    write_bounding_box = traits.List(traits.Float(), field='roptions.bb', minlen=6, maxlen=6, desc='6-element list (opt)')
+    write_bounding_box = traits.List(traits.List(traits.Float(), minlen=3,
+                                                 maxlen=3),
+                                     field='roptions.bb', minlen=2, maxlen=2,
+                                     desc='3x2-element list of lists')
+    # write_bounding_box = traits.List(traits.Float(), field='roptions.bb', minlen=6, maxlen=6, desc='6-element list (opt)')
     write_voxel_sizes = traits.List(traits.Float(), field='roptions.vox',
                                     minlen=3, maxlen=3,
                                     desc='3-element list (opt)')
