@@ -101,7 +101,6 @@ python $VIRTUAL_ENV/git/caps-clinfmri/clinfmri/scripts/spmpreproc.py \
     -v 2 \
     -c 000000001274 \
     -f /etc/fsl/4.1/fsl.sh \
-    -m /neurospin/local/bin/matlab \
     -s /i2bm/local/bin/spm12 \
     -o /volatile/nsap/spmpreproc \
     -n fmri \
