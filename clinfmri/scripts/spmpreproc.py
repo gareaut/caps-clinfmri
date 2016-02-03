@@ -102,7 +102,7 @@ python $VIRTUAL_ENV/git/caps-clinfmri/clinfmri/scripts/spmpreproc.py \
     -c 000000001274 \
     -f /etc/fsl/4.1/fsl.sh \
     -m /neurospin/local/bin/matlab \
-    -s /i2bm/local/spm12-6685 \
+    -s /i2bm/local/bin/spm12 \
     -o /volatile/nsap/spmpreproc \
     -n fmri \
     -t spm \
@@ -149,11 +149,8 @@ parser.add_argument(
     "-f", "--fslconfig", dest="fslconfig", required=True, metavar="FILE",
     help="the '.sh' freesurfer configuration file.", type=is_file)
 parser.add_argument(
-    "-m", "--matlabbin", dest="matlabbin", required=True, metavar="FILE",
-    help="the path to the matlab binary file.", type=is_file)
-parser.add_argument(
-    "-s", "--spmdir", dest="spmdir", required=True, metavar="PATH",
-    help="the path to the spm directory.", type=is_directory)
+    "-s", "--spmbin", dest="spmbin", required=True, metavar="FILE",
+    help="the spm standalone file.", type=is_file)
 parser.add_argument(
     "-o", "--outdir", dest="outdir", required=True, metavar="PATH",
     help="the path to output working directory.", type=is_directory)
@@ -234,11 +231,9 @@ study_config = StudyConfig(
     use_smart_caching=False,
     fsl_config=args.fslconfig,
     use_fsl=True,
-    #matlab_exec=args.matlabbin,
     use_matlab=False,
-    #spm_directory=args.spmdir,
     use_spm=False,
-    spm_exec="/i2bm/local/bin/spm12",
+    spm_exec=args.spmbin,
     spm_standalone=True,
     use_nipype=True,
     output_directory=tmp_capsul,
