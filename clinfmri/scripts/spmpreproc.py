@@ -111,6 +111,7 @@ python $VIRTUAL_ENV/git/caps-clinfmri/clinfmri/scripts/spmpreproc.py \
     -i /neurospin/imagen/BL/processed/nifti/000000001274/SessionA/EPI_stop_signal/000000001274s701a1007.nii.gz \
     -r /neurospin/imagen/workspace/fmri/scripts/ImagenEPI200_3mm.nii \
     -k /neurospin/imagen/workspace/fmri/scripts/ImagenEPI200_3mm_brain_mask.nii.gz \
+    -w 40 \
     -e 
 """
 
@@ -180,6 +181,10 @@ parser.add_argument(
 parser.add_argument(
     "-k", "--template_mask", dest="template_mask", metavar="FILE",
     help="the path to the reference template mask file.", type=is_file)
+parser.add_argument(
+    "-w", "--ref_slice", dest="ref_slice", required=True,
+    help=("the slices will be corrected to what they would have been if they "
+          "were acquired when the reference slice was acquired."), type=int)
 args = parser.parse_args()
 
 
@@ -268,6 +273,9 @@ pipeline.select_slicer = args.timings
 pipeline.select_normalization = args.normalization
 pipeline.force_repetition_time = args.repetition_time
 pipeline.force_slice_orders = args.slice_order
+pipeline.realign_wrap = [0, 1, 0]
+pipeline.realign_write_wrap = [0, 1, 0]
+pipeline.ref_slice = args.ref_slice
 if args.template is not None:
     pipeline.template_file = args.template
 if args.struct is not None:
