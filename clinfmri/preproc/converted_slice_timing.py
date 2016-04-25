@@ -18,24 +18,16 @@ def time_serie_metadata(fmri_file, force_repetition_time=0,
     """ Information of the time serie formatted accordingly to the selected
     software.
 
-    <unit>
-        <input name="fmri_file" type="File" description="the input FMRI
-            image."/>
-        <input name="force_repetition_time" type="Float" description="the
-            sequence repetition time."/>
-        <input name="force_slice_orders" type="List" content="Int"
-            description="the sequence slice orders."/>
-        <input name="slice_dim" type="Int" description="dimensions of 
-            a slice"/>
-        <output name="repetition_time" type="Float" description="the sequence
-            repetition time."/>
-        <output name="acquisition_time" type="Float" description="the sequence
-            acquisition time."/>
-        <output name="slice_orders" type="List" content="Int" description="the
-            sequence slice orders."/>
-        <output name="number_of_slices" type="Int" description="the number of
-            slices in the sequence."/>
-    </unit>
+    <process capsul_xml="2.0">
+      <input name="fmri_file" type="file" doc="the input FMRI image."/>
+      <input name="force_repetition_time" type="float" doc="the sequence repetition time."/>
+      <input name="force_slice_orders" type="list_int" doc="the sequence slice orders."/>
+      <input name="slice_dim" type="int" doc="dimensions of a slice"/>
+      <output name="repetition_time" type="float" doc="the sequence repetition time."/>
+      <output name="acquisition_time" type="float" doc="the sequence acquisition time."/>
+      <output name="slice_orders" type="list_int" doc="the sequence slice orders."/>
+      <output name="number_of_slices" type="int" doc="the number of slices in the sequence."/>
+    </process>
     """
     # Load the image and get the corresponding header
     nii = nibabel.load(fmri_file)
@@ -79,14 +71,11 @@ def fsl_save_custom_timings(slice_orders, output_directory):
     """ Save acquisition slice timings in order to perform the slice timing
     with FSL.
 
-    <unit>
-        <input name="slice_orders" type="List" content="Int" description="the
-            sequence slice orders."/>
-        <input name="output_directory" type="Directory" description="the output
-            directory where fsl slice times are saved."/>
-        <output name="timings_file" type="File" description="the acquisition
-            slice timings."/>
-    </unit>
+    <process capsul_xml="2.0">
+      <input name="slice_orders" type="list_int" doc="the sequence slice orders."/>
+      <input name="output_directory" type="directory" doc="the output directory where fsl slice times are saved."/>
+      <return name="timings_file" type="file" doc="the acquisition slice timings."/>
+    </process>
     """
     # Check that the outdir is valid
     if not os.path.isdir(output_directory):

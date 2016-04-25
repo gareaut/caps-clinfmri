@@ -1,0 +1,292 @@
+
+<pipeline capsul_xml="2.0">
+  <doc>fMRI spatial preprocessings.
+
+        Based on SPM and FSL realize fMRI sequences preprocessings. It is
+        possible to select the slice timing and the normalization algorithms
+        by setting the 'select_slicer' and 'select_normalization' pipeline 
+        parameters. We can choose to use the 'fsl' or 'spm' slicer or we
+        can select a 'fmri' or 'anat' normalization:
+
+        * in the case of an 'anat' normalization a t1 image has to be
+          specified in the 'structural_file' parameter. This case simply
+          register the t1 image to the mean fMRI image and then register the t1
+          image in the fMRI space to the MNI template using the unified
+          'New Segment' SPM procedure.
+        * in the cas of a 'fmri' normalization a functional template image has
+          to be specified in the 'template_file'. This case simply register
+          the mean fMRI image to the template.
+
+        In both case a 'fmri_file' containing the functional sequence has to be
+        specified. The latter is expected to contain the repetition time and
+        slice orders in this header. If it is not the case the
+        'force_slice_orders' and 'force_repetition_time' parameters have to be
+        specified.
+
+        Softawares involved:
+
+        * SPM
+        * FSL: for the slice timing as it is designed for multi-band
+          acquisitions and the brain extraction.
+
+        Steps (with anatomical template alignement):
+            * Slice timing: correct differences in image acquisition time
+              between slices.
+            * Realignement: estimate within modality volume to volume rigid
+              body alignment.
+            * Coregistration: register the t1 image to the functional space.
+            * Normalization: une the SPM unified 'New Segment' algorithm to
+              register the t1 image in the functional space to the MNI
+              template space.
+            * Smoothing
+            * BET: brain extraction in the functional sequence.
+
+        Steps (with functional template alignement):
+            * Slice timing: correct differences in image acquisition time
+              between slices.
+            * Realignement: estimate within modality volume to volume rigid
+              body alignment.
+            * Normalization: register the mean functional image to the template
+              space.
+            * Smoothing
+            * BET: brain extraction in the functional sequence.</doc>
+  <process name="image_manager" module="clinfmri.preproc.converted_slice_timing.time_serie_metadata"/>
+  <process name="ungzip_adapter" module="mmutils.adapters.converted_io.ungzip_file">
+    <set name="prefix" value="'u'"/>
+    <set name="output_directory" value="None"/>
+  </process>
+  <process name="ungzip_template_adapter" module="mmutils.adapters.converted_io.ungzip_file">
+    <set name="prefix" value="'u'"/>
+    <set name="output_directory" value="None"/>
+  </process>
+  <process name="ungzip_struct_adapter" module="mmutils.adapters.converted_io.ungzip_file">
+    <set name="prefix" value="'u'"/>
+    <set name="output_directory" value="None"/>
+  </process>
+  <process name="spm_list_adapter" module="mmutils.adapters.converted_io.element_to_list"/>
+  <process name="fsl_list_adapter" module="mmutils.adapters.converted_io.element_to_list"/>
+  <process name="element_adapter" module="mmutils.adapters.converted_io.list_to_element"/>
+  <process name="spm_slicer" module="nipype.interfaces.spm.SliceTiming">
+    <set name="in_files" value="None"/>
+    <set name="ref_slice" value="1"/>
+    <set name="out_prefix" value="'a'"/>
+    <set name="output_directory" value="None"/>
+    <nipype name="in_files" copyfile="discard"/>
+  </process>
+  <process name="fsl_save_timings" module="clinfmri.preproc.converted_slice_timing.fsl_save_custom_timings">
+    <set name="output_directory" value="None"/>
+  </process>
+  <process name="fsl_slicer" module="nipype.interfaces.fsl.SliceTimer">
+    <set name="output_type" value="'NIFTI'"/>
+    <set name="slice_direction" value="3"/>
+    <set name="terminal_output" value="'stream'"/>
+    <set name="output_directory" value="None"/>
+  </process>
+  <process name="realign" module="nipype.interfaces.spm.Realign">
+    <set name="jobtype" value="'estwrite'"/>
+    <set name="quality" value="1.0"/>
+    <set name="register_to_mean" value="True"/>
+    <set name="separation" value="4"/>
+    <set name="fwhm" value="5"/>
+    <set name="interp" value="2"/>
+    <set name="wrap" value="[0, 0, 0]"/>
+    <set name="write_which" value="[2, 1]"/>
+    <set name="write_interp" value="4"/>
+    <set name="write_wrap" value="[0, 0, 0]"/>
+    <set name="write_mask" value="True"/>
+    <set name="out_prefix" value="'r'"/>
+    <set name="output_directory" value="None"/>
+  </process>
+  <process name="spm_normalize_template" module="clinfmri.nipype_interfaces.spm.Normalize">
+    <set name="write_voxel_sizes" value="[3., 3., 3.]"/>
+    <set name="write_bounding_box" value="[[-78, -112, -50], [78, 76, 85]]"/>
+    <set name="write_interp" value="1"/>
+    <set name="jobtype" value="'estwrite'"/>
+    <set name="out_prefix" value="'w'"/>
+    <set name="output_directory" value="None"/>
+    <set name="parameter_file" value="None"/>
+    <set name="_normalization_parameters" value="None"/>
+  </process>
+  <process name="spm_funcnormalize_template" module="clinfmri.nipype_interfaces.spm.Normalize">
+    <set name="write_voxel_sizes" value="[3., 3., 3.]"/>
+    <set name="write_bounding_box" value="[[-78, -112, -50], [78, 76, 85]]"/>
+    <set name="write_interp" value="1"/>
+    <set name="jobtype" value="'write'"/>
+    <set name="out_prefix" value="'w'"/>
+    <set name="DCT_period_cutoff" value="25"/>
+    <set name="affine_regularization_type" value="'mni'"/>
+    <set name="template_image_smoothing" value="0."/>
+    <set name="source_image_smoothing" value="8."/>
+    <set name="nonlinear_iterations" value="16"/>
+    <set name="nonlinear_regularization" value="1"/>
+    <set name="write_preserve" value="False"/>
+    <set name="output_directory" value="None"/>
+    <set name="parameter_file" value="None"/>
+    <set name="source" value="None"/>
+    <set name="write_interp" value="4"/>
+    <set name="template" value="None"/>
+    <set name="write_wrap" value="[0, 1, 0]"/>
+  </process>
+  <process name="coregister" module="nipype.interfaces.spm.Coregister">
+    <set name="jobtype" value="'estimate'"/>
+    <set name="cost_function" value="'nmi'"/>
+    <set name="separation" value="[4, 2]"/>
+    <set name="tolerance" value="[0.02, 0.02, 0.02, 0.001, 0.001, 0.001, 0.01, 0.01, 0.01, 0.001, 0.001, 0.001]"/>
+    <set name="fwhm" value="[7, 7]"/>
+    <set name="out_prefix" value="'c'"/>
+    <set name="output_directory" value="None"/>
+  </process>
+  <process name="tpm_adapter" module="mmutils.adapters.converted_io.spm_tissue_probability_maps"/>
+  <process name="spm_newsegment" module="nipype.interfaces.spm.NewSegment">
+    <set name="channel_files" value="None"/>
+    <set name="channel_info" value="(0.0001, 60, (True, True))"/>
+    <set name="warping_regularization" value="4"/>
+    <set name="sampling_distance" value="3"/>
+    <set name="write_deformation_fields" value="[True, True]"/>
+    <set name="output_directory" value="None"/>
+    <nipype name="channel_files" copyfile="discard"/>
+  </process>
+  <process name="spm_structnormalize_mni" module="clinfmri.nipype_interfaces.spm.ApplyDeformationField">
+    <set name="voxel_sizes" value="[3., 3., 3.]"/>
+    <set name="bounding_box" value="[[-78, -112, -50], [78, 76, 85]]"/>
+    <set name="interpolation" value="1"/>
+    <set name="output_directory" value="None"/>
+  </process>
+  <process name="spm_funcnormalize_mni" module="clinfmri.nipype_interfaces.spm.ApplyDeformationField">
+    <set name="voxel_sizes" value="[3., 3., 3.]"/>
+    <set name="bounding_box" value="[[-78, -112, -50], [78, 76, 85]]"/>
+    <set name="interpolation" value="1"/>
+    <set name="output_directory" value="None"/>
+  </process>
+  <process name="smoothing" module="nipype.interfaces.spm.Smooth">
+    <set name="in_files" value="None"/>
+    <set name="fwhm" value="[5, 5, 5]"/>
+    <set name="data_type" value="0"/>
+    <set name="implicit_masking" value="False"/>
+    <set name="out_prefix" value="'s'"/>
+    <set name="output_directory" value="None"/>
+    <nipype name="in_files" copyfile="discard"/>
+  </process>
+  <process name="bet" module="clinfmri.utils.converted_fsl_bet">
+    <set name="use_4d_input" value="True"/>
+  </process>
+  <processes_selection name="select_normalization">
+    <processes_group name="fmri">
+      <process name="ungzip_template_adapter"/>
+      <process name="spm_normalize_template"/>
+      <process name="spm_funcnormalize_template"/>
+    </processes_group>
+    <processes_group name="anat">
+      <process name="ungzip_struct_adapter"/>
+      <process name="tpm_adapter"/>
+      <process name="spm_newsegment"/>
+      <process name="spm_structnormalize_mni"/>
+      <process name="spm_funcnormalize_mni"/>
+      <process name="coregister"/>
+      <process name="element_adapter"/>
+    </processes_group>
+  </processes_selection>
+  <processes_selection name="select_slicer">
+    <processes_group name="fsl">
+      <process name="fsl_save_timings"/>
+      <process name="fsl_slicer"/>
+      <process name="fsl_list_adapter"/>
+    </processes_group>
+    <processes_group name="spm">
+      <process name="spm_list_adapter"/>
+      <process name="spm_slicer"/>
+    </processes_group>
+  </processes_selection>
+  <link source="fmri_file" dest="fsl_slicer.in_file"/>
+  <link source="fmri_file" dest="ungzip_adapter.fname"/>
+  <link source="force_slice_orders" dest="image_manager.force_slice_orders"/>
+  <link source="force_repetition_time" dest="image_manager.force_repetition_time"/>
+  <link source="fmri_file" dest="image_manager.fmri_file"/>
+  <link source="ref_slice" dest="spm_slicer.ref_slice"/>
+  <link source="realign_wrap" dest="realign.wrap"/>
+  <link source="realign_write_wrap" dest="realign.write_wrap"/>
+  <link source="realign_register_to_mean" dest="realign.register_to_mean"/>
+  <link source="structural_file" dest="ungzip_struct_adapter.fname"/>
+  <link source="coreg_fwhm" dest="coregister.fwhm"/>
+  <link source="template_file" dest="ungzip_template_adapter.fname"/>
+  <link source="norm_func_voxel_sizes" dest="spm_funcnormalize_template.write_voxel_sizes"/>
+  <link source="norm_struct_voxel_sizes" dest="spm_normalize_template.write_voxel_sizes"/>
+  <link source="norm_func_voxel_sizes" dest="spm_funcnormalize_mni.voxel_sizes"/>
+  <link source="norm_struct_voxel_sizes" dest="spm_structnormalize_mni.voxel_sizes"/>
+  <link source="smooth_fwhm" dest="smoothing.fwhm"/>
+  <link source="bet_generate_binary_mask" dest="bet.generate_binary_mask"/>
+  <link source="bet_generate_skull" dest="bet.generate_skull"/>
+  <link source="bet_generate_mesh" dest="bet.generate_mesh"/>
+  <link source="bet_threshold" dest="bet.bet_threshold"/>
+  <link source="fmri_file" dest="bet.input_image_file"/>
+  <link source="ungzip_struct_adapter.ungzipfname" dest="coregister.source"/>
+  <link source="ungzip_template_adapter.ungzipfname" dest="spm_normalize_template.template"/>
+  <link source="ungzip_adapter.ungzipfname" dest="spm_list_adapter.element"/>
+  <link source="fsl_slicer._slice_time_corrected_file" dest="fsl_list_adapter.element"/>
+  <link source="spm_newsegment._forward_deformation_field" dest="element_adapter.listobj"/>
+  <link source="spm_list_adapter.adaptedelement" dest="spm_slicer.in_files"/>
+  <link source="image_manager.number_of_slices" dest="spm_slicer.num_slices"/>
+  <link source="image_manager.repetition_time" dest="spm_slicer.time_repetition"/>
+  <link source="image_manager.acquisition_time" dest="spm_slicer.time_acquisition"/>
+  <link source="image_manager.slice_orders" dest="spm_slicer.slice_order"/>
+  <link source="image_manager.slice_orders" dest="fsl_save_timings.slice_orders"/>
+  <link source="image_manager.repetition_time" dest="fsl_slicer.time_repetition"/>
+  <link source="fsl_save_timings.timings_file" dest="fsl_slicer.custom_timings"/>
+  <link source="fsl_list_adapter.adaptedelement" dest="realign.in_files"/>
+  <link source="spm_slicer._timecorrected_files" dest="realign.in_files"/>
+  <link source="realign._mean_image" dest="coregister.target"/>
+  <link source="realign._mean_image" dest="spm_normalize_template.source"/>
+  <link source="realign._modified_in_files" dest="spm_funcnormalize_template.apply_to_files"/>
+  <link source="spm_normalize_template._normalization_parameters" dest="spm_funcnormalize_template.parameter_file"/>
+  <link source="tpm_adapter.tpm_struct" dest="spm_newsegment.tissues"/>
+  <link source="coregister._coregistered_source" dest="spm_newsegment.channel_files"/>
+  <link source="element_adapter.element" dest="spm_funcnormalize_mni.deformation_field"/>
+  <link source="element_adapter.element" dest="spm_structnormalize_mni.deformation_field"/>
+  <link source="spm_newsegment._bias_corrected_images" dest="spm_structnormalize_mni.in_files"/>
+  <link source="realign._modified_in_files" dest="spm_funcnormalize_mni.in_files"/>
+  <link source="spm_funcnormalize_template._normalized_files" dest="smoothing.in_files"/>
+  <link source="spm_funcnormalize_mni._normalized_files" dest="smoothing.in_files"/>
+  <link source="image_manager.acquisition_time" dest="acquisition_time"/>
+  <link source="image_manager.slice_orders" dest="slice_orders"/>
+  <link source="image_manager.number_of_slices" dest="number_of_slices"/>
+  <link source="image_manager.repetition_time" dest="repetition_time"/>
+  <link source="spm_slicer._timecorrected_files" dest="timecorrected_files"/>
+  <link source="realign._realigned_files" dest="realigned_files"/>
+  <link source="realign._realignment_parameters" dest="realignement_parameters"/>
+  <link source="realign._mean_image" dest="mean_image"/>
+  <link source="spm_normalize_template._normalization_parameters" dest="normalization_parameters"/>
+  <link source="spm_normalize_template._normalized_source" dest="normalized_struct_file"/>
+  <link source="spm_funcnormalize_template._normalized_files" dest="normalized_fmri_files"/>
+  <link source="spm_newsegment._forward_deformation_field" dest="forward_deformation_field"/>
+  <link source="spm_structnormalize_mni._normalized_files" dest="normalized_struct_files"/>
+  <link source="spm_funcnormalize_mni._normalized_files" dest="normalized_fmri_files"/>
+  <link source="smoothing._smoothed_files" dest="smoothed_image_files"/>
+  <link source="bet.bet_out_file" dest="bet_out_file"/>
+  <gui>
+    <position x="-1072" y="281" name="inputs"/>
+    <position x="-546" y="67" name="image_manager"/>
+    <position x="-546" y="329" name="ungzip_adapter"/>
+    <position x="-379" y="404" name="spm_list_adapter"/>
+    <position x="-157" y="380" name="spm_slicer"/>
+    <position x="226" y="565" name="realign"/>
+    <position x="559" y="879" name="coregister"/>
+    <position x="1067" y="27" name="spm_funcnormalize_template"/>
+    <position x="791" y="27" name="spm_normalize_template"/>
+    <position x="-805" y="-402" name="bet"/>
+    <position x="1106" y="1753" name="element_adapter"/>
+    <position x="1670" y="709" name="smoothing"/>
+    <position x="2007" y="285" name="outputs"/>
+    <position x="1353" y="1708" name="spm_funcnormalize_mni"/>
+    <position x="838" y="1328" name="spm_newsegment"/>
+    <position x="1353" y="1318" name="spm_structnormalize_mni"/>
+    <position x="627" y="1551" name="tpm_adapter"/>
+    <position x="-350" y="-124" name="fsl_save_timings"/>
+    <position x="-161" y="-149" name="fsl_slicer"/>
+    <position x="86" y="226" name="fsl_list_adapter"/>
+    <position x="549" y="353" name="ungzip_template_adapter"/>
+    <position x="346" y="1308" name="ungzip_struct_adapter"/>
+    <zoom level="0.3"/>
+  </gui>
+</pipeline>
+
+

@@ -1,0 +1,41 @@
+
+<pipeline capsul_xml="2.0">
+  <doc>FSL Brain Extraction Tool (BET).
+
+        Deletes non-brain tissue from an image of the whole head. It can
+        also estimate the inner and outer skull surfaces, and outer scalp
+        surface, if you have good quality T1 and T2 input images.</doc>
+  <process name="fsl_bet" module="nipype.interfaces.fsl.BET">
+    <set name="in_file" value="Undefined"/>
+    <set name="functional" value="False"/>
+    <set name="mask" value="True"/>
+    <set name="mesh" value="False"/>
+    <set name="skull" value="False"/>
+    <set name="frac" value="0.5"/>
+    <set name="terminal_output" value="'stream'"/>
+    <set name="output_directory" value="Undefined"/>
+  </process>
+  <link source="input_image_file" dest="fsl_bet.in_file"/>
+  <link source="generate_binary_mask" dest="fsl_bet.mask"/>
+  <link source="use_4d_input" dest="fsl_bet.functional"/>
+  <link source="generate_mesh" dest="fsl_bet.mesh"/>
+  <link source="generate_skull" dest="fsl_bet.skull"/>
+  <link source="bet_threshold" dest="fsl_bet.frac"/>
+  <link source="fsl_bet._outskin_mesh_file" dest="bet_outskin_mesh_file"/>
+  <link source="fsl_bet._outskull_mesh_file" dest="bet_outskull_mesh_file"/>
+  <link source="fsl_bet._out_file" dest="bet_out_file"/>
+  <link source="fsl_bet._outskull_mask_file" dest="bet_outskull_mask_file"/>
+  <link source="fsl_bet._inskull_mesh_file" dest="bet_inskull_mesh_file"/>
+  <link source="fsl_bet._skull_mask_file" dest="bet_skull_mask_file"/>
+  <link source="fsl_bet._inskull_mask_file" dest="bet_inskull_mask_file"/>
+  <link source="fsl_bet._meshfile" dest="bet_meshfile"/>
+  <link source="fsl_bet._outskin_mask_file" dest="bet_outskin_mask_file"/>
+  <link source="fsl_bet._mask_file" dest="bet_mask_file"/>
+  <gui>
+    <position x="-437" y="9" name="inputs"/>
+    <position x="-104" y="-112" name="fsl_bet"/>
+    <position x="240" y="544" name="outputs"/>
+    <zoom level="0.7"/>
+  </gui>
+</pipeline>
+
