@@ -1,6 +1,6 @@
-<pipeline>
-    <docstring>
-        SPM8 fMRI First Level Analysis - Iterative mode.
+
+<pipeline capsul_xml="2.0">
+  <doc>SPM8 fMRI First Level Analysis.
 
         .. note::
 
@@ -8,73 +8,178 @@
               of elements.
             * `onsets` and `durations` values must have the same units as the
               TR used in the unitsings (ie. seconds).
-            set name="mask_threshold" value="-Inf"
-    </docstring>
-    <units>
-        <unit name="first_level_pipeline">
-            <module>clinfmri.statistics.spm_first_level_pipeline_bbox.xml</module>
-            <set name="output_directory" value="None"/>
-            <iterinput name="contrasts"/>
-            <iterinput name="fmri_sessions"/>
-            <iterinput name="behavioral_data"/>
-            <iterinput name="realignment_parameters"/>
-            <iterinput name="sid"/>
-            <iterinput name="w2w_mat_file"/>
-            <iteroutput name="spm_design_mat_file"/>
-            <iteroutput name="spm_design_snap"/>
-            <iteroutput name="spm_estimate_mat_file"/>
-            <iteroutput name="spm_beta_images"/>
-            <iteroutput name="out_mask_image"/>
-            <iteroutput name="RPVimage"/>
-            <iteroutput name="spm_contrast_mat_file"/>
-            <iteroutput name="spm_F_images"/>
-            <iteroutput name="spm_T_images"/>
-            <iteroutput name="spm_con_images"/>
-            <iteroutput name="spm_ess_images"/>
-            <iteroutput name="model_specifications"/>
-            <iteroutput name="non_interrest_regressors"/>
-        </unit>
-    </units>
-    <links>
-        <!-- INPUTS -->
-        <link source="contrasts" destination="first_level_pipeline.itercontrasts"/>
-        <link source="fmri_sessions" destination="first_level_pipeline.iterfmri_sessions"/>
-        <link source="behavioral_data" destination="first_level_pipeline.iterbehavioral_data"/>
-        <link source="realignment_parameters" destination="first_level_pipeline.iterrealignment_parameters"/>
-        <link source="sids" destination="first_level_pipeline.itersid"/>
-        <link source="w2w_mat_files" destination="first_level_pipeline.iterw2w_mat_file"/>
-        <link source="condition_name" destination="first_level_pipeline.condition_name"/>
-        <link source="high_pass_filter_cutoff" destination="first_level_pipeline.high_pass_filter_cutoff"/>
-        <link source="start" destination="first_level_pipeline.start"/>
-        <link source="onset_name" destination="first_level_pipeline.onset_name"/>
-        <link source="time_repetition" destination="first_level_pipeline.time_repetition"/>
-        <link source="output_directory" destination="first_level_pipeline.output_directory"/>
-        <link source="smoother_switch" destination="first_level_pipeline.smoother_switch"/>
-        <link source="delimiter" destination="first_level_pipeline.delimiter"/>
-        <link source="bases" destination="first_level_pipeline.bases"/>
-        <link source="duration_name" destination="first_level_pipeline.duration_name"/>
-        <link source="concatenate_runs" destination="first_level_pipeline.concatenate_runs"/>
-        <link source="mask_image" destination="first_level_pipeline.mask_image"/>
-        <link source="fwhm" destination="first_level_pipeline.fwhm"/>
-        <!-- OUTPUTS -->
-        <link source="first_level_pipeline.iterspm_design_mat_file" destination="spm_design_mat_file"/>
-        <link source="first_level_pipeline.iterspm_design_snap" destination="spm_design_snap"/>
-        <link source="first_level_pipeline.iterspm_estimate_mat_file" destination="spm_estimate_mat_file"/>
-        <link source="first_level_pipeline.iterspm_beta_images" destination="spm_beta_images"/>
-        <link source="first_level_pipeline.iterout_mask_image" destination="out_mask_image"/>
-        <link source="first_level_pipeline.iterRPVimage" destination="RPVimage"/>
-        <link source="first_level_pipeline.iterspm_contrast_mat_file" destination="spm_contrast_mat_file"/>
-        <link source="first_level_pipeline.iterspm_F_images" destination="spm_F_images"/>
-        <link source="first_level_pipeline.iterspm_T_images" destination="spm_T_images"/>
-        <link source="first_level_pipeline.iterspm_con_images" destination="spm_con_images"/>
-        <link source="first_level_pipeline.iterspm_ess_images" destination="spm_ess_images"/>
-        <link source="first_level_pipeline.itermodel_specifications" destination="model_specifications"/>
-        <link source="first_level_pipeline.iternon_interrest_regressors" destination="non_interrest_regressors"/>
-    </links>
-    <positions>
-        <position unit="inputs" x="50" y="50"/>
-        <position unit="first_level_pipeline" x="458" y="50"/>
-        <position unit="outputs" x="838" y="475"/>
-    </positions>
-    <zoom level="0.6"/> 
+            set name="mask_threshold" value="-Inf"</doc>
+  <process name="no_process_rp" module="mmutils.adapters.converted_io.noprocess_switch"/>
+  <process name="list_to_element_adapter" module="mmutils.adapters.converted_io.list_to_element"/>
+  <process name="extract_wm_regressors" module="clinfmri.statistics.extract_non_interrest_reg">
+    <set name="regions_label" value="'wm'"/>
+    <set name="verbose" value="1"/>
+    <set name="output_directory" value="None"/>
+  </process>
+  <process name="extract_csf_regressors" module="clinfmri.statistics.extract_non_interrest_reg">
+    <set name="regions_label" value="'ventricles'"/>
+    <set name="verbose" value="1"/>
+    <set name="output_directory" value="None"/>
+  </process>
+  <process name="add_wm_reg" module="clinfmri.statistics.csf_covars.complete_regressors_file">
+    <!-- <set name="add_extra_mvt_reg" value="True"/> -->
+    <set name="output_directory" value="None"/>
+  </process>
+  <process name="add_csf_reg" module="clinfmri.statistics.csf_covars.complete_regressors_file">
+    <!-- <set name="add_extra_mvt_reg" value="False"/> -->
+    <set name="output_directory" value="None"/>
+  </process>
+  <process name="smoother" module="nipype.interfaces.spm.Smooth">
+    <set name="in_files" value="None"/>
+    <set name="data_type" value="0"/>
+    <set name="implicit_masking" value="False"/>
+    <set name="out_prefix" value="'s'"/>
+    <set name="output_directory" value="None"/>
+    <nipype name="in_files" copyfile="discard"/>
+  </process>
+  <process name="no_process" module="mmutils.adapters.converted_io.noprocess_switch"/>
+  <process name="model" module="clinfmri.statistics.spm_model_specification.spm_model_specification">
+    <set name="output_directory" value="None"/>
+    <set name="concatenate_runs" value="True"/>
+    <set name="delimiter" value="'\t'"/>
+    <set name="start" value="0"/>
+    <set name="high_pass_filter_cutoff" value="128"/>
+  </process>
+  <process name="design" module="nipype.interfaces.spm.Level1Design">
+    <set name="output_directory" value="None"/>
+    <set name="timing_units" value="'secs'"/>
+    <set name="microtime_resolution" value="16"/>
+    <set name="microtime_onset" value="1"/>
+    <set name="volterra_expansion_order" value="1"/>
+    <set name="global_intensity_normalization" value="'none'"/>
+    <set name="model_serial_correlations" value="'AR(1)'"/>
+    <set name="factor_info" value="[{'name': {}}, {'levels': {}}]"/>
+    <set name="bases" value="{'hrf': {'derivs': [0, 0]}}"/>
+    <set name="use_v8struct" value="True"/>
+    <set name="mfile" value="True"/>
+    <!-- <set name="timing_units" value="'secs'"/> -->
+    <!-- <nipype name="timing_units" usedefault="true"/> -->
+  </process>
+  <process name="snap" module="clinfmri.statistics.spm_utils.spm_save_design">
+    <set name="output_directory" value="None"/>
+  </process>
+  <process name="estimate" module="nipype.interfaces.spm.EstimateModel">
+    <set name="output_directory" value="None"/>
+    <set name="estimation_method" value="{'Classical': 1}"/>
+    <set name="use_v8struct" value="True"/>
+    <set name="mfile" value="True"/>
+  </process>
+  <process name="contrast" module="nipype.interfaces.spm.EstimateContrast">
+    <set name="output_directory" value="None"/>
+    <set name="beta_images" value="None"/>
+    <set name="residual_image" value="None"/>
+    <nipype name="beta_images" copyfile="discard"/>
+    <nipype name="residual_image" copyfile="discard"/>
+  </process>
+  <process name="encoding" module="clinfmri.statistics.spm_utils.spm_image_nii_encoding">
+    <set name="output_directory" value="None"/>
+  </process>
+  <processes_selection name="smoother_switch">
+    <processes_group name="do_smoothing">
+      <process name="smoother"/>
+    </processes_group>
+    <processes_group name="no_smoothing">
+      <process name="no_process"/>
+    </processes_group>
+  </processes_selection>
+  <processes_selection name="complete_regressors">
+    <processes_group name="no">
+      <process name="no_process_rp"/>
+    </processes_group>
+    <processes_group name="yes">
+      <process name="list_to_element_adapter"/>
+      <process name="extract_wm_regressors"/>
+      <process name="extract_csf_regressors"/>
+      <process name="add_wm_reg"/>
+      <process name="add_csf_reg"/>
+    </processes_group>
+  </processes_selection>
+  <!-- <link source="output_directory" dest="design.spm_mat_dir"/> -->
+  <link source="smoother._smoothed_files" dest="model.fmri_sessions"/>
+  <link source="no_process.output_value" dest="model.fmri_sessions"/>
+  <link source="time_repetition" dest="design.interscan_interval"/>
+  <link source="model.session_info" dest="design.session_info"/>
+  <link source="design._spm_mat_file" dest="snap.spm_mat_file"/>
+  <link source="design._spm_mat_file" dest="estimate.spm_mat_file"/>
+  <link source="estimate._spm_mat_file" dest="contrast.spm_mat_file"/>
+  <link source="estimate._residual_image" dest="contrast.residual_image"/>
+  <link source="estimate._beta_images" dest="contrast.beta_images"/>
+  <link source="contrasts" dest="encoding.contrasts"/>
+  <link source="contrast._spmF_images" dest="encoding.spmF_images"/>
+  <link source="contrast._spmT_images" dest="encoding.spmT_images"/>
+  <link source="contrast._con_images" dest="encoding.con_images"/>
+  <link source="contrast._ess_images" dest="encoding.ess_images"/>
+  <link source="extract_wm_regressors.covars" dest="add_wm_reg.covars_file"/>
+  <link source="add_wm_reg.covars" dest="add_csf_reg.input_file"/>
+  <link source="extract_csf_regressors.covars" dest="add_csf_reg.covars_file"/>
+  <link source="list_to_element_adapter.element" dest="extract_csf_regressors.fmri_file"/>
+  <link source="list_to_element_adapter.element" dest="extract_wm_regressors.fmri_file"/>
+  <link source="add_csf_reg.covars" dest="model.realignment_parameters"/>
+  <link source="no_process_rp.output_value" dest="model.realignment_parameters"/>
+  <link source="mask_image" dest="design.mask_image"/>
+  <link source="fwhm" dest="smoother.fwhm"/>
+  <link source="fmri_sessions" dest="smoother.in_files"/>
+  <link source="fmri_sessions" dest="no_process.input_value"/>
+  <link source="behavioral_data" dest="model.behavioral_data"/>
+  <link source="onset_name" dest="model.onset_name"/>
+  <link source="condition_name" dest="model.condition_name"/>
+  <link source="time_repetition" dest="model.time_repetition"/>
+  <link source="start" dest="model.start"/>
+  <link source="high_pass_filter_cutoff" dest="model.high_pass_filter_cutoff"/>
+  <link source="bases" dest="design.bases"/>
+  <link source="contrasts" dest="contrast.contrasts"/>
+  <link source="delimiter" dest="model.delimiter"/>
+  <link source="duration_name" dest="model.duration_name"/>
+  <link source="concatenate_runs" dest="model.concatenate_runs"/>
+  <link source="fsdir" dest="extract_wm_regressors.fsdir"/>
+  <link source="fsdir" dest="extract_csf_regressors.fsdir"/>
+  <link source="sid" dest="extract_csf_regressors.sid"/>
+  <link source="sid" dest="extract_wm_regressors.sid"/>
+  <link source="region_ids" dest="extract_csf_regressors.region_ids"/>
+  <link source="region_ids" dest="extract_wm_regressors.region_ids"/>
+  <link source="w2w_mat_file" dest="extract_csf_regressors.w2wmap_file"/>
+  <link source="w2w_mat_file" dest="extract_wm_regressors.w2wmap_file"/>
+  <link source="fmri_sessions" dest="list_to_element_adapter.listobj"/>
+  <link source="nb_extra_covars" dest="extract_csf_regressors.nb_covars"/>
+  <link source="nb_extra_covars" dest="extract_wm_regressors.nb_covars"/>
+  <link source="realignment_parameters" dest="add_wm_reg.input_file"/>
+  <link source="realignment_parameters" dest="no_process_rp.input_value"/>
+  <link source="contrast._spm_mat_file" dest="spm_contrast_mat_file"/>
+  <link source="encoding.nii_spmF_images" dest="spm_F_images"/>
+  <link source="encoding.nii_spmT_images" dest="spm_T_images"/>
+  <link source="encoding.nii_con_images" dest="spm_con_images"/>
+  <link source="encoding.nii_ess_images" dest="spm_ess_images"/>
+  <link source="design._spm_mat_file" dest="spm_design_mat_file"/>
+  <link source="snap.spm_design_snap" dest="spm_design_snap"/>
+  <link source="estimate._spm_mat_file" dest="spm_estimate_mat_file"/>
+  <link source="estimate._beta_images" dest="spm_beta_images"/>
+  <link source="estimate._mask_image" dest="out_mask_image"/>
+  <link source="estimate._RPVimage" dest="RPVimage"/>
+  <link source="model.model_specifications" dest="model_specifications"/>
+  <link source="extract_csf_regressors.covars" dest="non_interrest_regressors"/>
+  <gui>
+    <position x="-652" y="-12" name="inputs"/>
+    <position x="24" y="242" name="model"/>
+    <position x="178" y="-376" name="design"/>
+    <position x="600" y="-300" name="snap"/>
+    <position x="464" y="198" name="estimate"/>
+    <position x="760" y="-194" name="contrast"/>
+    <position x="1068" y="130" name="encoding"/>
+    <position x="1570" y="102" name="outputs"/>
+    <position x="-277" y="76" name="no_process"/>
+    <position x="-290" y="-326" name="smoother"/>
+    <position x="-340" y="513" name="no_process_rp"/>
+    <position x="80" y="1146" name="add_csf_reg"/>
+    <position x="-105" y="873" name="add_wm_reg"/>
+    <position x="-367" y="1050" name="extract_csf_regressors"/>
+    <position x="-373" y="742" name="extract_wm_regressors"/>
+    <position x="-648" y="957" name="list_to_element_adapter"/>
+    <zoom level="0.6"/>
+  </gui>
 </pipeline>
+

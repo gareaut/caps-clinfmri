@@ -90,21 +90,19 @@ def resample_image(source_file, target_file, output_directory,
 
     CAPSUL header
     -------------
-    <unit>
-        <input name="source_file" type="File" desc="the image to resample."/>
-        <input name="target_file" type="File" desc="the reference image."/>
-        <input name="output_directory" type="Directory" desc="the folder where
-            the resampled image will be saved."/>
-        <input name="w2wmap_file" type="File" desc="physical to physical
-            transformation file."/>
-        <input name="erode_path_nb" type="Int" desc="the number of path in
-            erosion of the mask"/>
-        <input name="order" type="Int" desc="interpolation mode, 0 = nearest
-            neighbour"/>
-        <input name="cval" type="Float" desc=""/>
-        <input name="verbose" type="Int" desc="verbosity level"/>
-        <output name="resampled_file" type="File" desc="the resampled image."/>
-    </unit>
+    
+    <process capsul_xml="2.0">
+      <input name="source_file" type="file" doc="the image to resample."/>
+      <input name="target_file" type="file" doc="the reference image."/>
+      <input name="output_directory" type="directory" doc="the folder where the resampled image will be saved."/>
+      <input name="w2wmap_file" type="file" doc="physical to physical transformation file."/>
+      <input name="erode_path_nb" type="int" doc="the number of path in erosion of the mask"/>
+      <input name="order" type="int" doc="interpolation mode, 0 = nearest neighbour"/>
+      <input name="cval" type="float"/>
+      <input name="verbose" type="int" doc="verbosity level"/>
+      <output name="resampled_file" type="file" doc="the resampled image."/>
+    </process>
+    
 
     """
     # get world to world transformation
@@ -200,27 +198,17 @@ def get_covars(csfmask_file, func_file, min_nb_of_voxels=20, nb_covars=5,
     CAPSUL HEADER
     -------------
 
-    <unit>
-        <input name="csfmask_file" type="File"
-            desc="a binary mask of the CSF in the functional space."/>
-        <input name="func_file" type="File"
-            desc="a functional volume of size (X, Y, Z, T)."/>
-        <input name="min_nb_of_voxels" type="Int"
-            desc="the criterion used to select a CSF ROI with specific size.
-            Optional (default=50)"/>
-        <input name="nb_covars" type="Int"
-        desc="the number of covariates used to explain the CSF variability.
-        Optional (default=5)"/>
-        <input name="verbose" type="Int" desc="the verbosity level.
-            Optional (default=0)"/>
-        <input name="output_directory" type="Directory"
-            desc="for debuging purpose: if the verbosity level is > 1
-                  save the mask used
-                  to select the functional time series."/>
-
-        <output name="covars" type="File" desc="the requested number of
-            covariates that represent the CSF variability."/>
-    </unit>
+    
+    <process capsul_xml="2.0">
+      <input name="csfmask_file" type="file" doc="a binary mask of the CSF in the functional space."/>
+      <input name="func_file" type="file" doc="a functional volume of size (X, Y, Z, T)."/>
+      <input name="min_nb_of_voxels" type="int" doc="the criterion used to select a CSF ROI with specific size. Optional (default=50)"/>
+      <input name="nb_covars" type="int" doc="the number of covariates used to explain the CSF variability. Optional (default=5)"/>
+      <input name="verbose" type="int" doc="the verbosity level. Optional (default=0)"/>
+      <input name="output_directory" type="directory" doc="for debuging purpose: if the verbosity level is &gt; 1 save the mask used to select the functional time series."/>
+      <output name="covars" type="file" doc="the requested number of covariates that represent the CSF variability."/>
+    </process>
+    
     """
     # Erode the mask until we have N < min_nb_of_voxels ones
     csf_image = nibabel.load(csfmask_file)
@@ -268,15 +256,14 @@ def complete_regressors_file(input_file, covars_file, output_directory,
     CAPSUL HEADER
     -------------
 
-    <unit>
-        <input name="input_file" type="File" desc="the current regressors
-            file"/>
-        <input name="covars_file" type="File" desc="the regressors to add file"
-            />
-        <input name="output_directory" type="Directory" desc="the directory
-            that will contain the output file"/>
-        <output name="covars" type="File" desc="the completed covars file"/>
-    </unit>
+    
+    <process capsul_xml="2.0">
+      <input name="input_file" type="file" doc="the current regressors file"/>
+      <input name="covars_file" type="file" doc="the regressors to add file"/>
+      <input name="output_directory" type="directory" doc="the directory that will contain the output file"/>
+      <output name="covars" type="file" doc="the completed covars file"/>
+    </process>
+    
     """
     covars = np.loadtxt(covars_file)
 

@@ -31,37 +31,24 @@ def spm_model_specification(behavioral_data, fmri_sessions, onset_name,
         * `onsets` and `durations` values must have the same units as the
           TR used in the processings (ie. seconds).
 
-    <unit>
-        <input name="behavioral_data" type="List" content="File" desc="list of
-            .csv session behavioral data." />
-        <input name="fmri_sessions" type="List" content="File" desc="list of
-            path to fMRI sessions." />
-        <input name="onset_name" type="String" desc="the name of the column
-            in the `behavioral_data` file containing the onsets."/>
-        <input name="condition_name" type="String" desc="the name of the
-            column in the `behavioral_data` file containing the conditions."/>
-        <input name="duration_name" type="String" desc="the name of the column
-            in the `behavioral_data` file containing the condition durations.
-            "/>
-        <input name="time_repetition" type="Float" desc="the repetition time
-            in seconds (in seconds)."/>
-        <input name="realignment_parameters" type="File" desc="path to the SPM
-            realign output parameters."/>
-        <input name="delimiter" type="String" desc="separator used to split
-            the `behavioral_data` file."/>
-        <input name="start" type="Int" desc="line from which we start reading
-            the `behavioral_data` file."/>
-        <input name="concatenate_runs" type="Bool" desc="concatenate all runs
-            to look like a single session."/>
-        <input name="high_pass_filter_cutoff" type="Float" desc="high-pass
-            filter cutoff in secs."/>
-        <input name="output_directory" type="Directory" desc="Where to store
-            the output file"/>
-        <output name="session_info" type="Any" desc="session info to leverage
-            the first level design."/>
-        <output name="model_specifications" type="File" desc="file containing
-            all model specifications" />
-    </unit>
+    
+    <process capsul_xml="2.0">
+      <input name="behavioral_data" type="list_file" doc="list of .csv session behavioral data."/>
+      <input name="fmri_sessions" type="list_file" doc="list of path to fMRI sessions."/>
+      <input name="onset_name" type="string" doc="the name of the column in the `behavioral_data` file containing the onsets."/>
+      <input name="condition_name" type="string" doc="the name of the column in the `behavioral_data` file containing the conditions."/>
+      <input name="duration_name" type="string" doc="the name of the column in the `behavioral_data` file containing the condition durations."/>
+      <input name="time_repetition" type="float" doc="the repetition time in seconds (in seconds)."/>
+      <input name="realignment_parameters" type="file" doc="path to the SPM realign output parameters."/>
+      <input name="delimiter" type="string" doc="separator used to split the `behavioral_data` file."/>
+      <input name="start" type="int" doc="line from which we start reading the `behavioral_data` file."/>
+      <input name="concatenate_runs" type="bool" doc="concatenate all runs to look like a single session."/>
+      <input name="high_pass_filter_cutoff" type="float" doc="high-pass filter cutoff in secs."/>
+      <input name="output_directory" type="directory" doc="Where to store the output file"/>
+      <output name="session_info" type="any" doc="session info to leverage the first level design."/>
+      <output name="model_specifications" type="file" doc="file containing all model specifications"/>
+    </process>
+    
     """
     # Local imports
     from nipype.interfaces.base import Bunch
