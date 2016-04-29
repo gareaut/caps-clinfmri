@@ -9,24 +9,26 @@
             * `onsets` and `durations` values must have the same units as the
               TR used in the unitsings (ie. seconds).
             set name="mask_threshold" value="-Inf"</doc>
-  <process name="no_process_rp" module="mmutils.adapters.converted_io.noprocess_switch"/>
+  <process name="normalize_rp" module="mmutils.adapters.converted_io.normalize_array"/>
   <process name="list_to_element_adapter" module="mmutils.adapters.converted_io.list_to_element"/>
   <process name="extract_wm_regressors" module="clinfmri.statistics.extract_non_interrest_reg">
     <set name="regions_label" value="'wm'"/>
+    <set name="region_ids" value="None"/>
     <set name="verbose" value="1"/>
     <set name="output_directory" value="None"/>
   </process>
   <process name="extract_csf_regressors" module="clinfmri.statistics.extract_non_interrest_reg">
     <set name="regions_label" value="'ventricles'"/>
+    <set name="region_ids" value="None"/>
     <set name="verbose" value="1"/>
     <set name="output_directory" value="None"/>
   </process>
   <process name="add_wm_reg" module="clinfmri.statistics.csf_covars.complete_regressors_file">
-    <!-- <set name="add_extra_mvt_reg" value="True"/> -->
+    <set name="add_extra_mvt_reg" value="True"/>
     <set name="output_directory" value="None"/>
   </process>
   <process name="add_csf_reg" module="clinfmri.statistics.csf_covars.complete_regressors_file">
-    <!-- <set name="add_extra_mvt_reg" value="False"/> -->
+    <set name="add_extra_mvt_reg" value="False"/>
     <set name="output_directory" value="None"/>
   </process>
   <process name="smoother" module="nipype.interfaces.spm.Smooth">
@@ -40,10 +42,6 @@
   <process name="no_process" module="mmutils.adapters.converted_io.noprocess_switch"/>
   <process name="model" module="clinfmri.statistics.spm_model_specification.spm_model_specification">
     <set name="output_directory" value="None"/>
-    <set name="concatenate_runs" value="True"/>
-    <set name="delimiter" value="'\t'"/>
-    <set name="start" value="0"/>
-    <set name="high_pass_filter_cutoff" value="128"/>
   </process>
   <process name="design" module="nipype.interfaces.spm.Level1Design">
     <set name="output_directory" value="None"/>
@@ -57,11 +55,6 @@
     <set name="bases" value="{'hrf': {'derivs': [0, 0]}}"/>
     <set name="use_v8struct" value="True"/>
     <set name="mfile" value="True"/>
-    <!-- <set name="timing_units" value="'secs'"/> -->
-    <!-- <nipype name="timing_units" usedefault="true"/> -->
-  </process>
-  <process name="snap" module="clinfmri.statistics.spm_utils.spm_save_design">
-    <set name="output_directory" value="None"/>
   </process>
   <process name="estimate" module="nipype.interfaces.spm.EstimateModel">
     <set name="output_directory" value="None"/>
@@ -89,7 +82,7 @@
   </processes_selection>
   <processes_selection name="complete_regressors">
     <processes_group name="no">
-      <process name="no_process_rp"/>
+      <process name="normalize_rp"/>
     </processes_group>
     <processes_group name="yes">
       <process name="list_to_element_adapter"/>
@@ -99,12 +92,10 @@
       <process name="add_csf_reg"/>
     </processes_group>
   </processes_selection>
-  <!-- <link source="output_directory" dest="design.spm_mat_dir"/> -->
   <link source="smoother._smoothed_files" dest="model.fmri_sessions"/>
   <link source="no_process.output_value" dest="model.fmri_sessions"/>
   <link source="time_repetition" dest="design.interscan_interval"/>
   <link source="model.session_info" dest="design.session_info"/>
-  <link source="design._spm_mat_file" dest="snap.spm_mat_file"/>
   <link source="design._spm_mat_file" dest="estimate.spm_mat_file"/>
   <link source="estimate._spm_mat_file" dest="contrast.spm_mat_file"/>
   <link source="estimate._residual_image" dest="contrast.residual_image"/>
@@ -120,7 +111,9 @@
   <link source="list_to_element_adapter.element" dest="extract_csf_regressors.fmri_file"/>
   <link source="list_to_element_adapter.element" dest="extract_wm_regressors.fmri_file"/>
   <link source="add_csf_reg.covars" dest="model.realignment_parameters"/>
-  <link source="no_process_rp.output_value" dest="model.realignment_parameters"/>
+  <link source="normalize_rp.outfile" dest="model.realignment_parameters"/>
+  <link source="erode_path_nb_csf" dest="extract_csf_regressors.erode_path_nb"/>
+  <link source="erode_path_nb_wm" dest="extract_wm_regressors.erode_path_nb"/>
   <link source="mask_image" dest="design.mask_image"/>
   <link source="fwhm" dest="smoother.fwhm"/>
   <link source="fmri_sessions" dest="smoother.in_files"/>
@@ -140,22 +133,19 @@
   <link source="fsdir" dest="extract_csf_regressors.fsdir"/>
   <link source="sid" dest="extract_csf_regressors.sid"/>
   <link source="sid" dest="extract_wm_regressors.sid"/>
-  <link source="region_ids" dest="extract_csf_regressors.region_ids"/>
-  <link source="region_ids" dest="extract_wm_regressors.region_ids"/>
   <link source="w2w_mat_file" dest="extract_csf_regressors.w2wmap_file"/>
   <link source="w2w_mat_file" dest="extract_wm_regressors.w2wmap_file"/>
   <link source="fmri_sessions" dest="list_to_element_adapter.listobj"/>
   <link source="nb_extra_covars" dest="extract_csf_regressors.nb_covars"/>
   <link source="nb_extra_covars" dest="extract_wm_regressors.nb_covars"/>
   <link source="realignment_parameters" dest="add_wm_reg.input_file"/>
-  <link source="realignment_parameters" dest="no_process_rp.input_value"/>
+  <link source="realignment_parameters" dest="normalize_rp.filepath"/>
   <link source="contrast._spm_mat_file" dest="spm_contrast_mat_file"/>
   <link source="encoding.nii_spmF_images" dest="spm_F_images"/>
   <link source="encoding.nii_spmT_images" dest="spm_T_images"/>
   <link source="encoding.nii_con_images" dest="spm_con_images"/>
   <link source="encoding.nii_ess_images" dest="spm_ess_images"/>
   <link source="design._spm_mat_file" dest="spm_design_mat_file"/>
-  <link source="snap.spm_design_snap" dest="spm_design_snap"/>
   <link source="estimate._spm_mat_file" dest="spm_estimate_mat_file"/>
   <link source="estimate._beta_images" dest="spm_beta_images"/>
   <link source="estimate._mask_image" dest="out_mask_image"/>
@@ -166,14 +156,13 @@
     <position x="-652" y="-12" name="inputs"/>
     <position x="24" y="242" name="model"/>
     <position x="178" y="-376" name="design"/>
-    <position x="600" y="-300" name="snap"/>
     <position x="464" y="198" name="estimate"/>
     <position x="760" y="-194" name="contrast"/>
     <position x="1068" y="130" name="encoding"/>
     <position x="1570" y="102" name="outputs"/>
     <position x="-277" y="76" name="no_process"/>
     <position x="-290" y="-326" name="smoother"/>
-    <position x="-340" y="513" name="no_process_rp"/>
+    <position x="-340" y="513" name="normalize_rp"/>
     <position x="80" y="1146" name="add_csf_reg"/>
     <position x="-105" y="873" name="add_wm_reg"/>
     <position x="-367" y="1050" name="extract_csf_regressors"/>

@@ -138,23 +138,34 @@ def resample_image(source_file, target_file, output_directory,
     if verbose > 0:
         print("w2wmap:\n", w2wmap)
 
-    # get anatomic mask
-    source_image = nibabel.load(source_file)
-    source_data = source_image.get_data()
-
-    # erode
+    # erode anatomic mask if requestd
     if erode_path_nb > 0:
+        structuring_element = np.array([[[0, 0, 0],
+                                         [0, 1, 0],
+                                         [0, 0, 0]],
+                                        [[0, 1, 0],
+                                         [1, 1, 1],
+                                         [0, 1, 0]],
+                                        [[0, 0, 0],
+                                         [0, 1, 0],
+                                         [0, 0, 0]]])
+        # get anatomic mask
+        source_image = nibabel.load(source_file)
+        source_data = source_image.get_data()
+
         eroded_image = binary_erosion(
             source_data,
-            iterations=erode_path_nb).astype(source_data.dtype)
+            iterations=erode_path_nb,
+            structure=structuring_element).astype(source_data.dtype)
 
         # save
         _temp = nibabel.Nifti1Image(eroded_image, source_image.get_affine())
-        eroded_file = os.path.join(output_directory,
+        source_file = os.path.join(output_directory,
                                    'eroded_anat_mask.nii.gz')
-        nibabel.save(_temp, eroded_file)
-        # Get eroded anatomic mask
-        source_image = nipy.load_image(eroded_file)
+        nibabel.save(_temp, source_file)
+
+    # Get eroded anatomic mask
+    source_image = nipy.load_image(source_file)
 
     # resample
     resampled_image = resample(
@@ -166,10 +177,13 @@ def resample_image(source_file, target_file, output_directory,
         "resampled_{0}".format(os.path.basename(source_file)))
     nipy.save_image(resampled_image, resampled_file)
 
+#    if not os.path.isfile(resampled_file):
+#        raise ValueError("NO RESAMPLED FILE")
+
     return resampled_file
 
 
-def get_covars(csfmask_file, func_file, min_nb_of_voxels=20, nb_covars=5,
+def get_covars(csfmask_file, func_file, min_nb_of_voxels=50, nb_covars=5,
                verbose=0, output_directory=None):
     """ Compute covariates that represent the CSF variability in a functional
     timeserie.
@@ -223,7 +237,9 @@ def get_covars(csfmask_file, func_file, min_nb_of_voxels=20, nb_covars=5,
             csf_array = csf_tmp_array
     else:
         raise ValueError(
-            "Not enough CSF voxels in mask '{0}'.".format(csfmask_file))
+            "Not enough CSF voxels ({}) in mask '{}'.".format(
+                len(np.where(csf_array == 1)[0]),
+                csfmask_file))
     if verbose > 1:
         csf_mask = nibabel.Nifti1Image(csf_array.astype(int),
                                        csf_image.get_affine())
@@ -233,6 +249,7 @@ def get_covars(csfmask_file, func_file, min_nb_of_voxels=20, nb_covars=5,
     # Compute a SVD
     func_array = nibabel.load(func_file).get_data()
     csftimeseries = func_array[np.where(csf_array == 1)].T
+    csftimeseries = csftimeseries.astype(float)
     csftimeseries -= csftimeseries.mean(axis=0)
     u, s, v = np.linalg.svd(csftimeseries, full_matrices=False)
     if verbose > 2:
@@ -255,29 +272,38 @@ def complete_regressors_file(input_file, covars_file, output_directory,
 
     CAPSUL HEADER
     -------------
-
     
     <process capsul_xml="2.0">
       <input name="input_file" type="file" doc="the current regressors file"/>
       <input name="covars_file" type="file" doc="the regressors to add file"/>
       <input name="output_directory" type="directory" doc="the directory that will contain the output file"/>
+      <input name="add_extra_mvt_reg" type="bool" doc="Command wether the movement parameters need to be completed (t2, t3, t-1, t+1 will be added)"/>
       <output name="covars" type="file" doc="the completed covars file"/>
     </process>
     
     """
     covars = np.loadtxt(covars_file)
+    # if we don't want any extra noise regressor (nb_extra_covars = 0), the
+    # covars value here will be an empty array.
 
-    rp = np.load(input_file)
+    rp = np.loadtxt(input_file)
 
     if add_extra_mvt_reg:
         # Add translation square and cube, plus shift
         t, r = rp[:, :3], rp[:, 3:]
         kl = np.vstack((t[:1, :], t[:-1, :]))
         ke = np.vstack((t[1:, :], t[-1:, :]))
-        out = np.column_stack((t, r, t**2, t**3, ke, kl, covars))
+        if covars.shape[0] == 0:
+            out = np.column_stack((t, r, t**2, t**3, ke, kl))
+        else:
+            out = np.column_stack((t, r, t**2, t**3, ke, kl, covars))
     else:
-        out = np.column_stack((rp, covars))
+        if covars.shape[0] != 0:
+            out = np.column_stack((rp, covars))
+        else:
+            out = rp
 
+    # normalize
     out = (out - out.mean(axis=0)) / out.std(axis=0)
     covars = os.path.join(output_directory, "complete_reg_file.txt")
     np.savetxt(covars, out, fmt="%5.8f")

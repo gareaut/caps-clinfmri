@@ -7,25 +7,24 @@
         Get first vectors as non-interrest regressor and output them</doc>
   <process name="get_roi_mask" module="clinfmri.statistics.freesurfer.mri_binarize">
     <set name="interpolation" value="'interpolate'"/>
-    <set name="region_ids" value="None"/>
-    <!-- <set name="order" value="0"/>
-    <set name="cval" value="0"/> -->
   </process>
   <process name="resample_image" module="clinfmri.statistics.csf_covars.resample_image">
     <set name="output_directory" value="None"/>
-    <set name="erode_path_nb" value="0"/>
+    <set name="order" value="0"/>
+    <set name="cval" value="0"/>
   </process>
   <process name="extract_regressors" module="clinfmri.statistics.csf_covars.get_covars">
     <set name="output_directory" value="None"/>
-    <set name="min_nb_of_voxels" value="50"/>
+    <set name="min_nb_of_voxels" value="20"/>
   </process>
+  <link source="region_ids" dest="get_roi_mask.region_ids"/>
   <link source="regions_label" dest="get_roi_mask.regions_label"/>
   <link source="fsdir" dest="get_roi_mask.fsdir"/>
   <link source="sid" dest="get_roi_mask.sid"/>
-  <link source="region_ids" dest="get_roi_mask.region_ids"/>
   <link source="w2wmap_file" dest="resample_image.w2wmap_file"/>
   <link source="verbose" dest="resample_image.verbose"/>
   <link source="fmri_file" dest="resample_image.target_file"/>
+  <link source="erode_path_nb" dest="resample_image.erode_path_nb"/>
   <link source="verbose" dest="extract_regressors.verbose"/>
   <link source="fmri_file" dest="extract_regressors.func_file"/>
   <link source="nb_covars" dest="extract_regressors.nb_covars"/>
