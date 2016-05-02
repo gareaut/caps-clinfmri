@@ -14,6 +14,14 @@
     <set name="frac" value="0.5"/>
     <set name="terminal_output" value="'stream'"/>
     <set name="output_directory" value="Undefined"/>
+    <set name="surfaces" value="Undefined"/>
+    <set name="remove_eyes" value="Undefined"/>
+    <set name="reduce_bias" value="Undefined"/>
+    <set name="padding" value="Undefined"/>
+    <set name="robust" value="Undefined"/>
+    <set name="center" value="Undefined"/>
+    <set name="radius" value="Undefined"/>
+    <set name="vertical_gradient" value="Undefined"/>
   </process>
   <link source="input_image_file" dest="fsl_bet.in_file"/>
   <link source="generate_binary_mask" dest="fsl_bet.mask"/>

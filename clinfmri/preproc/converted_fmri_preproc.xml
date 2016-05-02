@@ -98,6 +98,14 @@
     <set name="output_directory" value="None"/>
   </process>
   <process name="spm_normalize_template" module="clinfmri.nipype_interfaces.spm.Normalize">
+    <set name="write_wrap" value="Undefined"/>
+    <set name="DCT_period_cutoff" value="Undefined"/>
+    <set name="nonlinear_regularization" value="Undefined"/>
+    <set name="affine_regularization_type" value="Undefined"/>
+    <set name="nonlinear_iterations" value="Undefined"/>
+    <set name="template_image_smoothing" value="Undefined"/>
+    <set name="source_image_smoothing" value="Undefined"/>
+    <set name="write_preserve" value="Undefined"/>
     <set name="write_voxel_sizes" value="[3., 3., 3.]"/>
     <set name="write_bounding_box" value="[[-78, -112, -50], [78, 76, 85]]"/>
     <set name="write_interp" value="1"/>
